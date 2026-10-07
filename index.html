@@ -3,51 +3,139 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>糖尿病足压力监测 · USB / 蓝牙</title>
+<title>足君健康 · 糖尿病足底预警矫正系统</title>
 <style>
     * { box-sizing: border-box; font-family: 'Segoe UI', Roboto, system-ui, sans-serif; }
-    body {
-        background: #0b0f1a; min-height: 100vh; margin: 0;
-        display: flex; justify-content: center; align-items: center; padding: 16px;
+    html, body {
+        margin: 0; padding: 0; min-height: 100vh;
+        background: #0b0f1a; color: #eef2ff;
     }
-    .card {
-        background: #1e2432; max-width: 1100px; width: 100%;
-        border-radius: 48px; padding: 28px 28px 36px;
-        box-shadow: 0 20px 40px rgba(0,0,0,0.8), 0 0 0 2px #2d3648 inset;
-        color: #eef2ff;
+    body { display: flex; flex-direction: column; }
+
+    /* ============ 顶栏 ============ */
+    .topbar {
+        position: sticky; top: 0; z-index: 100;
+        background: linear-gradient(180deg, #1c2334, #161d2b);
+        border-bottom: 1px solid #2e3a50;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    }
+    .topbar-inner {
+        max-width: 1440px; margin: 0 auto;
+        padding: 12px 24px;
+        display: flex; align-items: center; gap: 20px;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+    .brand-logo {
+        width: 40px; height: 40px; border-radius: 12px;
+        background: linear-gradient(135deg, #4d7dff, #2aff6e);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 22px;
+        box-shadow: 0 4px 14px rgba(77,125,255,0.45);
+    }
+    .brand-text { display: flex; flex-direction: column; line-height: 1.15; }
+    .brand-text .t {
+        font-size: 16px; font-weight: 800; letter-spacing: 1px;
+        background: linear-gradient(90deg, #4d7dff, #2aff6e);
+        -webkit-background-clip: text; background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    .brand-text .s {
+        font-size: 10px; color: #6b7b9c;
+        letter-spacing: 1.5px; text-transform: uppercase;
+    }
+    .nav-tabs {
+        display: flex; background: #141a26;
+        border-radius: 60px; padding: 4px;
+        border: 1px solid #2e3f5e; flex-shrink: 0;
+    }
+    .nav-tab {
+        display: flex; align-items: center; gap: 6px;
+        padding: 8px 18px; border: none; background: transparent;
+        color: #8a99bb; font-weight: 600; font-size: 13px;
+        border-radius: 60px; cursor: pointer;
+        transition: all 0.2s; white-space: nowrap;
+    }
+    .nav-tab:hover { color: #b7d0ff; }
+    .nav-tab.active {
+        background: #2a4fd6; color: #fff;
+        box-shadow: 0 2px 10px rgba(61,110,255,0.5);
+    }
+    .topbar-right {
+        display: flex; align-items: center; gap: 10px;
+        margin-left: auto;
+    }
+    .side-switch {
+        display: flex; background: #141a26;
+        border-radius: 60px; padding: 3px;
+        border: 1px solid #2e3f5e;
+    }
+    .side-btn {
+        padding: 7px 14px; border: none; background: transparent;
+        color: #8a99bb; font-weight: 700; font-size: 12px;
+        border-radius: 60px; cursor: pointer;
+        transition: all 0.2s;
+        display: flex; align-items: center; gap: 5px;
+    }
+    .side-btn.active {
+        background: #2a4fd6; color: #fff;
+        box-shadow: 0 2px 8px rgba(61,110,255,0.5);
+    }
+    .side-btn.active.side-r {
+        background: #d62a4f;
+        box-shadow: 0 2px 8px rgba(255,77,120,0.5);
+    }
+    .lang-switch {
+        display: flex; background: #141a26;
+        border-radius: 60px; padding: 3px;
+        border: 1px solid #2e3f5e;
+    }
+    .lang-btn {
+        padding: 7px 13px; border: none; background: transparent;
+        color: #8a99bb; font-weight: 700; font-size: 12px;
+        border-radius: 60px; cursor: pointer; transition: all 0.2s;
+    }
+    .lang-btn.active { background: #2a4fd6; color: #fff; }
+
+    /* ============ 主区 ============ */
+    .layout {
+        max-width: 1440px; width: 100%;
+        margin: 0 auto; padding: 20px 24px 32px;
+        display: grid; grid-template-columns: 300px 1fr;
+        gap: 20px; flex: 1;
+    }
+    @media (max-width: 980px) {
+        .layout { grid-template-columns: 1fr; }
+        .sidebar { position: static !important; }
+        .topbar-inner { flex-wrap: wrap; padding: 10px 14px; }
+        .nav-tab { padding: 7px 12px; font-size: 12px; }
+        .brand-text .t { font-size: 14px; }
     }
 
-    /* ===== 两栏布局 ===== */
-    .main-layout {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 20px;
-        align-items: stretch;
+    /* ============ 侧栏 ============ */
+    .sidebar {
+        position: sticky; top: 90px;
+        align-self: flex-start;
+        display: flex; flex-direction: column; gap: 16px;
     }
-    @media (max-width: 820px) {
-        .main-layout { grid-template-columns: 1fr; }
+    .side-card {
+        background: #1a2030; border-radius: 22px;
+        padding: 18px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.3), 0 0 0 1px #2d3648 inset;
     }
-
-    .left-col, .right-col {
-        display: flex; flex-direction: column; gap: 20px;
-    }
-
-    /* ===== 工具栏 ===== */
-    .toolbar {
-        display: flex; flex-direction: column; gap: 12px;
-        margin-bottom: 20px; padding: 0 4px;
-    }
-    .toolbar-row {
+    .side-title {
+        font-size: 12px; font-weight: 700;
+        color: #8a99bb; letter-spacing: 1px;
+        text-transform: uppercase; margin-bottom: 12px;
         display: flex; justify-content: space-between; align-items: center;
-        gap: 12px;
     }
     .mode-switch {
-        display: flex; background: #141a26; border-radius: 60px;
-        padding: 4px; border: 1px solid #2e3f5e;
+        display: flex; background: #141a26;
+        border-radius: 60px; padding: 4px;
+        border: 1px solid #2e3f5e; margin-bottom: 12px;
     }
     .mode-btn {
-        flex: 1; padding: 8px 18px; border: none; background: transparent;
-        color: #8a99bb; font-weight: 600; font-size: 13px;
+        flex: 1; padding: 9px 12px; border: none; background: transparent;
+        color: #8a99bb; font-weight: 600; font-size: 12px;
         border-radius: 60px; cursor: pointer; transition: all 0.2s;
         white-space: nowrap;
     }
@@ -56,349 +144,1132 @@
         box-shadow: 0 2px 8px rgba(61,110,255,0.5);
     }
     .mode-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-
-    .btn {
+    .btn-main {
+        width: 100%;
         background: linear-gradient(180deg, #3d6eff, #2a4fd6);
-        color: #fff; font-weight: 700; font-size: 15px;
-        padding: 12px 24px; border: none; border-radius: 60px;
-        cursor: pointer; transition: all 0.15s;
+        color: #fff; font-weight: 700; font-size: 14px;
+        padding: 12px 20px; border: none; border-radius: 60px;
+        cursor: pointer;
         box-shadow: 0 4px 0 #1a3aa8, 0 6px 20px rgba(61,110,255,0.4);
-        letter-spacing: 0.5px;
-        flex: 1;
+        transition: all 0.15s; letter-spacing: 0.5px;
     }
-    .btn:hover { transform: translateY(-1px); }
-    .btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #1a3aa8; }
-    .btn.disconnect {
+    .btn-main:hover { transform: translateY(-1px); }
+    .btn-main:active { transform: translateY(2px); box-shadow: 0 2px 0 #1a3aa8; }
+    .btn-main.disconnect {
         background: linear-gradient(180deg, #ff4d4d, #d62a2a);
         box-shadow: 0 4px 0 #a81a1a, 0 6px 20px rgba(255,77,77,0.4);
     }
-
-    .conn-status {
-        font-size: 13px; color: #8a99bb; padding: 6px 14px;
-        border-radius: 30px; background: #141a26;
-        border: 1px solid #2e3f5e;
-        white-space: nowrap;
+    .conn-badge {
+        margin-top: 10px; font-size: 12px; color: #8a99bb;
+        padding: 8px 14px; border-radius: 30px;
+        background: #141a26; border: 1px solid #2e3f5e;
+        text-align: center; display: block;
     }
-    .conn-status.connected { color: #2aff6e; border-color: #2aff6e; }
-
-    .hint {
-        font-size: 12px; color: #6b7b9c; padding: 0 8px;
-        min-height: 16px;
+    .conn-badge.connected { color: #2aff6e; border-color: #2aff6e; }
+    .hint-text {
+        font-size: 11px; color: #6b7b9c;
+        margin-top: 10px; line-height: 1.6;
     }
 
-    /* ===== 传感器面板 ===== */
-    .oled-panel {
-        background: #0a0c12; border-radius: 28px; padding: 20px 22px 18px;
-        border: 2px solid #3a445c;
-        box-shadow: 0 0 0 1px #000, 0 10px 20px rgba(0,0,0,0.7) inset;
-        flex: 1;
-        display: flex; flex-direction: column;
+    /* ============ 内容 ============ */
+    .content { min-width: 0; }
+    .page { display: none; }
+    .page.active { display: block; animation: fadeIn 0.25s; }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(6px); }
+        to { opacity: 1; transform: translateY(0); }
     }
-    .oled-header {
-        display: flex; justify-content: space-between; align-items: center;
-        font-size: 13px; letter-spacing: 1px; color: #b7c2e0;
-        border-bottom: 1px solid #2e3a50; padding-bottom: 8px;
-        margin-bottom: 16px; text-transform: uppercase;
+    .content-title {
+        text-align: center; margin: 0 0 20px;
+        padding: 6px 0 14px;
+        border-bottom: 1px solid #2a3142;
     }
-    .sensor-grid {
-        display: grid; grid-template-columns: 1fr 1fr;
-        gap: 14px; margin-bottom: 20px;
+    .content-title h1 {
+        font-size: 26px; font-weight: 800;
+        letter-spacing: 2px; margin: 0;
+        background: linear-gradient(90deg, #4d7dff, #2aff6e, #4d7dff);
+        background-size: 200% auto;
+        -webkit-background-clip: text; background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: titleShine 4s linear infinite;
     }
-    .sensor-item {
-        background: #141a26; border-radius: 18px; padding: 10px 14px;
-        border: 1px solid #2e3f5e; box-shadow: 0 2px 0 #0b0e14;
-    }
-    .sensor-label {
-        font-size: 13px; color: #a5b3d6; display: flex;
-        justify-content: space-between; margin-bottom: 6px;
-    }
-    .sensor-value {
-        font-size: 34px; font-weight: 800; line-height: 1;
-        color: #dfe8ff; text-shadow: 0 0 8px #4d7dff;
-        font-variant-numeric: tabular-nums;
-    }
-    .sensor-value .unit {
-        font-size: 15px; color: #8a99bb; margin-left: 4px; font-weight: 600;
-    }
-    .threshold-hint { font-size: 11px; color: #6d7e9e; margin-top: 4px; }
-    .status-row {
-        display: flex; justify-content: space-between; align-items: center;
-        margin-top: auto; border-top: 1px solid #2e3a50; padding-top: 16px;
-        gap: 10px;
-    }
-    .led-group { display: flex; gap: 18px; align-items: center; }
-    .led { display: flex; align-items: center; gap: 6px; font-weight: 600; font-size: 13px; }
-    .led-bulb {
-        width: 26px; height: 26px; border-radius: 50%; background: #2a2f3c;
-        box-shadow: 0 0 0 2px #1a1e28, 0 0 0 4px #0b0f1a; transition: all 0.15s;
-    }
-    .led-red.active .led-bulb {
-        background: #ff2a2a;
-        box-shadow: 0 0 16px #ff2a2a, 0 0 0 2px #1a1e28, 0 0 0 4px #0b0f1a;
-    }
-    .led-green.active .led-bulb {
-        background: #2aff6e;
-        box-shadow: 0 0 16px #2aff6e, 0 0 0 2px #1a1e28, 0 0 0 4px #0b0f1a;
-    }
-    .status-message {
-        font-size: 14px; font-weight: 700; padding: 8px 16px;
-        border-radius: 60px; background: #1d2a3a; color: #b7d0ff;
-        border: 1px solid #3d5170;
-        white-space: nowrap;
-    }
-    .status-message.warning {
-        background: #4a1e1e; color: #ffb3b3; border-color: #ff5e5e;
-        text-shadow: 0 0 6px #ff0000;
-    }
-
-    /* ===== 图表 ===== */
-    .chart-panel {
-        background: #0a0c12; border-radius: 28px; padding: 18px 20px 16px;
-        border: 2px solid #3a445c;
-        box-shadow: 0 0 0 1px #000, 0 10px 20px rgba(0,0,0,0.7) inset;
-        flex: 1;
-        display: flex; flex-direction: column;
-        min-height: 380px;
-    }
-    .chart-header {
-        display: flex; flex-direction: column; gap: 8px;
-        font-size: 12px; color: #b7c2e0; letter-spacing: 1px;
-        border-bottom: 1px solid #2e3a50; padding-bottom: 10px; margin-bottom: 12px;
+    .content-title .subtitle {
+        font-size: 11px; color: #6b7b9c;
+        letter-spacing: 3px; margin-top: 8px;
         text-transform: uppercase;
     }
-    .chart-legend { display: flex; gap: 12px; flex-wrap: wrap; }
-    .legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: #a5b3d6; }
-    .legend-color { width: 12px; height: 3px; border-radius: 2px; }
-    #chartCanvas {
-        width: 100%; flex: 1; display: block; min-height: 260px;
-        background: #05070c; border-radius: 12px;
+    @keyframes titleShine {
+        0%   { background-position: 0% center; }
+        100% { background-position: 200% center; }
     }
 
-    .footer-note {
+    .card-block {
+        background: #1a2030; border-radius: 22px;
+        padding: 20px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.3), 0 0 0 1px #2d3648 inset;
+        margin-bottom: 18px;
+    }
+    .card-title {
+        font-size: 13px; font-weight: 700;
+        color: #8a99bb; letter-spacing: 1px;
+        text-transform: uppercase; margin-bottom: 14px;
         display: flex; justify-content: space-between; align-items: center;
-        margin-top: 20px; color: #6b7b9c; font-size: 13px; padding: 0 8px;
     }
-    .sim-tag {
-        background: #1e2a3e; padding: 4px 12px; border-radius: 30px;
-        color: #9bb1db;
+
+    /* ============ 双脚 ============ */
+    .feet-grid {
+        display: grid; grid-template-columns: 1fr 1fr; gap: 18px;
     }
-    .dot {
-        width: 8px; height: 8px; background: #2aff6e;
-        border-radius: 50%; display: inline-block; animation: blink 1s infinite;
+    @media (max-width: 880px) {
+        .feet-grid { grid-template-columns: 1fr; }
     }
-    @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.2; } }
+    .foot-column {
+        display: flex; flex-direction: column; gap: 14px;
+        background: #141a26; border-radius: 22px; padding: 16px;
+        border: 2px solid #2e3f5e; transition: all 0.3s;
+    }
+    .foot-column.left-side.active-target {
+        border-color: #2a4fd6;
+        box-shadow: 0 0 20px rgba(61,110,255,0.25);
+    }
+    .foot-column.right-side.active-target {
+        border-color: #d62a4f;
+        box-shadow: 0 0 20px rgba(255,77,120,0.25);
+    }
+    .foot-column.alerting {
+        animation: alertPulse 1.2s infinite;
+    }
+    @keyframes alertPulse {
+        0%, 100% { border-color: #ff4d4d; }
+        50% { border-color: rgba(255,77,77,0.3); }
+    }
+    .foot-header {
+        display: flex; justify-content: space-between;
+        align-items: center; padding-bottom: 10px;
+        border-bottom: 1px solid #2e3f5e;
+    }
+    .foot-name {
+        font-size: 15px; font-weight: 800; letter-spacing: 1px;
+        display: flex; align-items: center; gap: 8px;
+    }
+    .foot-column.left-side .foot-name { color: #6d9bff; }
+    .foot-column.right-side .foot-name { color: #ff6d90; }
+    .foot-target-badge {
+        font-size: 10px; padding: 3px 10px;
+        border-radius: 20px; background: #1d2a3a;
+        color: #6b7b9c; letter-spacing: 0.5px;
+    }
+    .foot-column.left-side.active-target .foot-target-badge {
+        background: #2a4fd6; color: #fff;
+    }
+    .foot-column.right-side.active-target .foot-target-badge {
+        background: #d62a4f; color: #fff;
+    }
+
+    .foot-panel {
+        display: flex; flex-direction: column;
+        align-items: center; padding: 4px 0;
+    }
+    .foot-canvas {
+        width: 100%; max-width: 240px; height: 280px;
+        display: block; background: #05070c; border-radius: 14px;
+    }
+    .foot-legend {
+        display: flex; gap: 8px; margin-top: 8px;
+        font-size: 10px; color: #a5b3d6; flex-wrap: wrap;
+        justify-content: center;
+    }
+    .foot-legend .item {
+        display: flex; align-items: center; gap: 4px;
+    }
+    .foot-legend .dot {
+        width: 8px; height: 8px; border-radius: 50%;
+    }
+
+    .sensor-mini-grid {
+        display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+    }
+    .sensor-mini {
+        background: #0e131f; border-radius: 12px;
+        padding: 8px 10px; border: 1px solid #2e3f5e;
+        transition: all 0.2s;
+    }
+    .sensor-mini.warn {
+        border-color: #ff4d4d;
+        box-shadow: 0 0 8px rgba(255,77,77,0.3);
+    }
+    .sensor-mini .lbl {
+        font-size: 10px; color: #8a99bb; margin-bottom: 4px;
+    }
+    .sensor-mini .val {
+        font-size: 17px; font-weight: 800;
+        color: #dfe8ff; line-height: 1;
+        font-variant-numeric: tabular-nums;
+    }
+    .sensor-mini .val .u {
+        font-size: 10px; color: #8a99bb;
+        margin-left: 2px; font-weight: 600;
+    }
+
+    .status-mini {
+        display: flex; justify-content: space-between;
+        align-items: center; gap: 10px;
+        padding-top: 10px; border-top: 1px solid #2e3f5e;
+    }
+    .status-mini .led-group {
+        display: flex; gap: 10px; align-items: center;
+    }
+    .status-mini .led-item {
+        display: flex; align-items: center; gap: 4px;
+        font-size: 10px; font-weight: 600;
+    }
+    .status-mini .led-dot {
+        width: 14px; height: 14px; border-radius: 50%;
+        background: #2a2f3c;
+        box-shadow: 0 0 0 2px #1a1e28;
+        transition: all 0.15s;
+    }
+    .status-mini .led-red.on .led-dot {
+        background: #ff2a2a;
+        box-shadow: 0 0 10px #ff2a2a, 0 0 0 2px #1a1e28;
+    }
+    .status-mini .led-green.on .led-dot {
+        background: #2aff6e;
+        box-shadow: 0 0 10px #2aff6e, 0 0 0 2px #1a1e28;
+    }
+    .status-mini .msg {
+        font-size: 11px; font-weight: 700;
+        padding: 5px 12px; border-radius: 40px;
+        background: #1d2a3a; color: #b7d0ff;
+        border: 1px solid #3d5170; white-space: nowrap;
+    }
+    .status-mini .msg.warning {
+        background: #4a1e1e; color: #ffb3b3;
+        border-color: #ff5e5e;
+    }
+
+    .mini-chart {
+        width: 100%; height: 110px; display: block;
+        background: #05070c; border-radius: 12px;
+    }
+    .chart-mini-title {
+        font-size: 11px; color: #8a99bb;
+        margin-bottom: 6px; letter-spacing: 0.5px;
+    }
+
+    /* ============ 姿态建议卡（每只脚下方）============ */
+    .advice-panel {
+        background: #1a1210;
+        border: 1px solid #ff7043;
+        border-radius: 14px;
+        padding: 12px 14px;
+        display: none;
+        animation: adviceIn 0.3s ease-out;
+    }
+    .advice-panel.show { display: block; }
+    @keyframes adviceIn {
+        from { opacity: 0; transform: translateY(-6px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .advice-panel.sev-mid {
+        background: #1a1710;
+        border-color: #ffb020;
+    }
+    .advice-panel.sev-high {
+        background: #1a1010;
+        border-color: #ff3b3b;
+        box-shadow: 0 0 14px rgba(255,59,59,0.4);
+    }
+    .advice-title {
+        font-size: 12px; font-weight: 800;
+        color: #ff7043; margin-bottom: 8px;
+        letter-spacing: 0.5px;
+        display: flex; align-items: center; gap: 6px;
+    }
+    .advice-panel.sev-mid .advice-title { color: #ffb020; }
+    .advice-panel.sev-high .advice-title { color: #ff5252; }
+    .advice-title .pulse {
+        display: inline-block;
+        width: 8px; height: 8px;
+        border-radius: 50%;
+        background: currentColor;
+        animation: dotPulse 1s infinite;
+    }
+    @keyframes dotPulse {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.4); opacity: 0.5; }
+    }
+    .advice-list {
+        list-style: none; padding: 0; margin: 0;
+    }
+    .advice-list li {
+        font-size: 12px; color: #d4d9e8;
+        line-height: 1.6; margin-bottom: 6px;
+        padding-left: 18px; position: relative;
+    }
+    .advice-list li::before {
+        content: '→';
+        position: absolute; left: 0;
+        color: #ff7043; font-weight: 800;
+    }
+    .advice-panel.sev-mid .advice-list li::before { color: #ffb020; }
+    .advice-panel.sev-high .advice-list li::before { color: #ff5252; }
+    .advice-list li:last-child { margin-bottom: 0; }
+    .advice-detail {
+        font-size: 10px; color: #8a99bb;
+        margin-top: 8px; padding-top: 8px;
+        border-top: 1px dashed #3a2e28;
+    }
+
+    /* ============ 全局弹出警告（右上角）============ */
+    .toast-container {
+        position: fixed;
+        top: 84px;
+        right: 20px;
+        z-index: 999;
+        display: flex; flex-direction: column;
+        gap: 10px;
+        max-width: 360px;
+        pointer-events: none;
+    }
+    .toast {
+        background: linear-gradient(135deg, #2a1210, #1a0c0a);
+        border: 1px solid #ff5252;
+        border-left: 4px solid #ff3b3b;
+        border-radius: 14px;
+        padding: 14px 16px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.5), 0 0 20px rgba(255,59,59,0.3);
+        pointer-events: auto;
+        animation: toastIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        position: relative;
+    }
+    .toast.sev-mid {
+        border-color: #ffb020;
+        border-left-color: #ffb020;
+        background: linear-gradient(135deg, #2a2110, #1a1408);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.5), 0 0 20px rgba(255,176,32,0.3);
+    }
+    @keyframes toastIn {
+        from { opacity: 0; transform: translateX(60px) scale(0.9); }
+        to { opacity: 1; transform: translateX(0) scale(1); }
+    }
+    .toast-head {
+        display: flex; justify-content: space-between;
+        align-items: center; margin-bottom: 8px;
+    }
+    .toast-title {
+        font-size: 13px; font-weight: 800;
+        color: #ff5252; letter-spacing: 0.5px;
+        display: flex; align-items: center; gap: 8px;
+    }
+    .toast.sev-mid .toast-title { color: #ffb020; }
+    .toast-close {
+        background: transparent; border: none;
+        color: #8a99bb; font-size: 16px;
+        cursor: pointer; padding: 0 4px;
+        line-height: 1;
+    }
+    .toast-close:hover { color: #fff; }
+    .toast-body {
+        font-size: 12px; color: #d4d9e8;
+        line-height: 1.6;
+    }
+    .toast-tag {
+        display: inline-block;
+        background: rgba(255,82,82,0.15);
+        color: #ff8080;
+        font-size: 10px;
+        padding: 2px 8px;
+        border-radius: 10px;
+        margin-right: 4px;
+        margin-top: 4px;
+        font-weight: 600;
+    }
+    .toast.sev-mid .toast-tag {
+        background: rgba(255,176,32,0.15);
+        color: #ffc95c;
+    }
+
+    /* ============ 数据页 ============ */
+    .data-stat {
+        display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 14px;
+        margin-bottom: 16px;
+    }
+    @media (max-width: 880px) {
+        .data-stat { grid-template-columns: 1fr 1fr; }
+    }
+    .stat-card {
+        background: #141a26; border-radius: 18px;
+        padding: 18px; border: 1px solid #2e3f5e; text-align: center;
+    }
+    .stat-card.left-side { border-color: rgba(61,110,255,0.4); }
+    .stat-card.right-side { border-color: rgba(255,77,120,0.4); }
+    .stat-card .num {
+        font-size: 26px; font-weight: 800;
+        font-variant-numeric: tabular-nums;
+    }
+    .stat-card.left-side .num { color: #6d9bff; text-shadow: 0 0 10px #3d6eff; }
+    .stat-card.right-side .num { color: #ff6d90; text-shadow: 0 0 10px #d62a4f; }
+    .stat-card .lbl {
+        font-size: 11px; color: #8a99bb; margin-top: 6px;
+    }
+
+    .data-btn-row { display: flex; gap: 12px; margin-bottom: 14px; }
+    .data-btn {
+        flex: 1; padding: 12px; border: none; border-radius: 14px;
+        font-weight: 700; font-size: 13px; cursor: pointer;
+        transition: all 0.15s; background: #2a3142; color: #b7d0ff;
+        border: 1px solid #3d5170;
+    }
+    .data-btn:hover { transform: translateY(-1px); }
+    .data-btn.primary {
+        background: linear-gradient(180deg, #3d6eff, #2a4fd6);
+        color: #fff; border: none; box-shadow: 0 4px 0 #1a3aa8;
+    }
+    .data-btn.danger {
+        background: linear-gradient(180deg, #ff4d4d, #d62a2a);
+        color: #fff; border: none; box-shadow: 0 4px 0 #a81a1a;
+    }
+
+    .daily-columns {
+        display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+    }
+    @media (max-width: 880px) {
+        .daily-columns { grid-template-columns: 1fr; }
+    }
+    .daily-list {
+        max-height: 400px; overflow-y: auto;
+        background: #0a0c12; border-radius: 16px; padding: 10px;
+        font-size: 12px;
+    }
+    .daily-list::-webkit-scrollbar { width: 5px; }
+    .daily-list::-webkit-scrollbar-thumb { background: #2e3f5e; border-radius: 3px; }
+    .daily-row {
+        display: grid; grid-template-columns: 70px 1fr 55px 55px;
+        gap: 8px; align-items: center;
+        padding: 9px 10px; border-radius: 10px;
+        color: #a5b3d6; border-bottom: 1px solid #141a26;
+    }
+    .daily-row:last-child { border-bottom: none; }
+    .daily-row .date { color: #8a99bb; font-weight: 600; font-size: 12px; }
+    .daily-row .bars {
+        display: flex; gap: 3px; align-items: flex-end; height: 22px;
+    }
+    .daily-row .bar {
+        width: 8px; border-radius: 3px 3px 0 0;
+    }
+    .daily-row .warn-min { color: #ffb3b3; text-align: right; font-weight: 600; font-size: 11px; }
+    .daily-row .wear { color: #6b7b9c; text-align: right; font-size: 11px; }
+    .record-empty {
+        text-align: center; padding: 30px;
+        color: #6b7b9c; font-size: 12px;
+    }
+
+    /* ============ 关于 ============ */
+    .setting-row {
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 14px 0; border-bottom: 1px solid #2a3142;
+        font-size: 14px; color: #b7c2e0;
+    }
+    .setting-row:last-child { border-bottom: none; }
+    .setting-row .value { color: #8a99bb; font-size: 13px; }
+    .about-text { font-size: 14px; line-height: 1.8; color: #8a99bb; }
+    .about-text strong { color: #dfe8ff; }
+
+    .big-chart {
+        width: 100%; height: 340px; display: block;
+        background: #05070c; border-radius: 12px;
+    }
 </style>
 </head>
 <body>
-<div class="card">
 
-    <!-- 顶部工具栏：横跨整个卡片 -->
-    <div class="toolbar">
-        <div class="mode-switch">
-            <button class="mode-btn active" id="modeUsb" data-mode="usb">🔌 USB 直连</button>
-            <button class="mode-btn" id="modeBt" data-mode="bt">📡 蓝牙 HC-06</button>
-        </div>
-        <div class="toolbar-row">
-            <button class="btn" id="connectBtn">🔗 连接串口</button>
-            <span class="conn-status" id="connStatus">未连接</span>
-        </div>
-        <div class="hint" id="hintText">USB 模式：用数据线连接 Arduino Nano，选择它的 COM 口。</div>
-    </div>
+<!-- ============ 全局 Toast ============ -->
+<div class="toast-container" id="toastContainer"></div>
 
-    <!-- 两栏主体：左=传感器+状态，右=曲线图 -->
-    <div class="main-layout">
-
-        <!-- 左栏 -->
-        <div class="left-col">
-            <div class="oled-panel">
-                <div class="oled-header">
-                    <span>🩺 Diabetic Foot Alert</span>
-                    <span id="connTypeLabel">未连接</span>
-                </div>
-
-                <div class="sensor-grid">
-                    <div class="sensor-item">
-                        <div class="sensor-label">
-                            <span>P1 脚跟</span>
-                            <span style="font-size:10px;color:#7f8fb0;background:#0e131f;padding:2px 6px;border-radius:30px;">阈16.0</span>
-                        </div>
-                        <div class="sensor-value" id="p1Val">--<span class="unit">kg</span></div>
-                        <div class="threshold-hint" id="p1Hint"></div>
-                    </div>
-                    <div class="sensor-item">
-                        <div class="sensor-label">
-                            <span>P2 足弓</span>
-                            <span style="font-size:10px;color:#7f8fb0;background:#0e131f;padding:2px 6px;border-radius:30px;">阈3.2</span>
-                        </div>
-                        <div class="sensor-value" id="p2Val">--<span class="unit">kg</span></div>
-                        <div class="threshold-hint" id="p2Hint"></div>
-                    </div>
-                    <div class="sensor-item">
-                        <div class="sensor-label">
-                            <span>P3 前掌内</span>
-                            <span style="font-size:10px;color:#7f8fb0;background:#0e131f;padding:2px 6px;border-radius:30px;">阈11.2</span>
-                        </div>
-                        <div class="sensor-value" id="p3Val">--<span class="unit">kg</span></div>
-                        <div class="threshold-hint" id="p3Hint"></div>
-                    </div>
-                    <div class="sensor-item">
-                        <div class="sensor-label">
-                            <span>P4 前掌外</span>
-                            <span style="font-size:10px;color:#7f8fb0;background:#0e131f;padding:2px 6px;border-radius:30px;">阈8.0</span>
-                        </div>
-                        <div class="sensor-value" id="p4Val">--<span class="unit">kg</span></div>
-                        <div class="threshold-hint" id="p4Hint"></div>
-                    </div>
-                </div>
-
-                <div class="status-row">
-                    <div class="led-group">
-                        <div class="led led-red" id="ledRed">
-                            <div class="led-bulb"></div>
-                            <span>红</span>
-                        </div>
-                        <div class="led led-green" id="ledGreen">
-                            <div class="led-bulb"></div>
-                            <span>绿</span>
-                        </div>
-                    </div>
-                    <div class="status-message" id="statusMsg">等待数据...</div>
-                </div>
+<!-- ============ 顶栏 ============ -->
+<div class="topbar">
+    <div class="topbar-inner">
+        <div class="brand">
+            <div class="brand-logo">🦶</div>
+            <div class="brand-text">
+                <div class="t" data-i18n="appName">足君健康</div>
+                <div class="s" data-i18n="appSlogan">FootGuard System</div>
             </div>
         </div>
-
-        <!-- 右栏：曲线图 -->
-        <div class="right-col">
-            <div class="chart-panel">
-                <div class="chart-header">
-                    <span>📈 压力趋势 · 最近 60 秒</span>
-                    <div class="chart-legend">
-                        <div class="legend-item"><span class="legend-color" style="background:#4d7dff;"></span>P1 脚跟</div>
-                        <div class="legend-item"><span class="legend-color" style="background:#2aff6e;"></span>P2 足弓</div>
-                        <div class="legend-item"><span class="legend-color" style="background:#ffb020;"></span>P3 前掌内</div>
-                        <div class="legend-item"><span class="legend-color" style="background:#ff4d4d;"></span>P4 前掌外</div>
-                    </div>
-                </div>
-                <canvas id="chartCanvas"></canvas>
-            </div>
+        <div class="nav-tabs">
+            <button class="nav-tab active" data-page="monitor">
+                <span class="ico">📊</span><span data-i18n="tabMonitor">监控</span>
+            </button>
+            <button class="nav-tab" data-page="chart">
+                <span class="ico">📈</span><span data-i18n="tabChart">曲线</span>
+            </button>
+            <button class="nav-tab" data-page="data">
+                <span class="ico">📂</span><span data-i18n="tabData">数据</span>
+            </button>
+            <button class="nav-tab" data-page="about">
+                <span class="ico">ℹ️</span><span data-i18n="tabAbout">关于</span>
+            </button>
         </div>
-    </div>
-
-    <div class="footer-note">
-        <div class="sim-tag" id="footerTag">📡 未连接</div>
-        <div style="display:flex;align-items:center;gap:6px;">
-            <span class="dot"></span> 数据接收中
+        <div class="topbar-right">
+            <div class="side-switch" title="数据写入目标">
+                <button class="side-btn active" data-side="L">🦶 <span data-i18n="targetLeft">数据→左脚</span></button>
+                <button class="side-btn side-r" data-side="R">🦶 <span data-i18n="targetRight">数据→右脚</span></button>
+            </div>
+            <div class="lang-switch">
+                <button class="lang-btn active" data-lang="zh">中</button>
+                <button class="lang-btn" data-lang="en">EN</button>
+            </div>
         </div>
     </div>
 </div>
 
+<!-- ============ 主区 ============ -->
+<div class="layout">
+
+    <aside class="sidebar">
+        <div class="side-card">
+            <div class="side-title">
+                <span data-i18n="connTitle">连接设备</span>
+                <span id="connTypeLabel" style="font-size:10px;color:#6b7b9c;letter-spacing:0;text-transform:none;" data-i18n="notConnected">未连接</span>
+            </div>
+            <div class="mode-switch">
+                <button class="mode-btn active" id="modeUsb" data-mode="usb" data-i18n="modeUsbShort">🔌 USB</button>
+                <button class="mode-btn" id="modeBt" data-mode="bt" data-i18n="modeBtShort">📡 蓝牙</button>
+            </div>
+            <button class="btn-main" id="connectBtn" data-i18n="connectBtn">🔗 连接串口</button>
+            <span class="conn-badge" id="connStatus" data-i18n="notConnected">未连接</span>
+            <div class="hint-text" id="hintText" data-i18n="hintUsb">
+                USB 模式：用数据线连接 Arduino Nano，选择它的 COM 口。
+            </div>
+        </div>
+
+        <div class="side-card">
+            <div class="side-title" data-i18n="statusTitle">状态总览</div>
+            <div style="font-size:12px;color:#8a99bb;line-height:1.9;">
+                <div style="display:flex;justify-content:space-between;">
+                    <span data-i18n="leftFootLabel">左脚</span>
+                    <span id="sidebarL" style="color:#6d9bff;font-weight:700;">--</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;">
+                    <span data-i18n="rightFootLabel">右脚</span>
+                    <span id="sidebarR" style="color:#ff6d90;font-weight:700;">--</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="content">
+
+        <div class="content-title" id="mainTitle">
+            <h1 data-i18n="appTitle">足君健康 · 糖尿病足底预警矫正系统</h1>
+            <div class="subtitle" data-i18n="appSubtitle">DIABETIC FOOT PRESSURE ALERT &amp; CORRECTION SYSTEM</div>
+        </div>
+
+        <!-- ===== 监控页 ===== -->
+        <div class="page active" id="page-monitor">
+            <div class="feet-grid">
+
+                <!-- 左脚 -->
+                <div class="foot-column left-side" id="colLeft">
+                    <div class="foot-header">
+                        <div class="foot-name">🦶 <span data-i18n="sideLeft">左脚</span></div>
+                        <div class="foot-target-badge" id="badgeLeft" data-i18n="badgeIdle">空闲</div>
+                    </div>
+                    <div class="foot-panel">
+                        <canvas id="footCanvasL" class="foot-canvas" width="280" height="320"></canvas>
+                        <div class="foot-legend">
+                            <div class="item"><span class="dot" style="background:#4d7dff;"></span><span data-i18n="legendLow">低压</span></div>
+                            <div class="item"><span class="dot" style="background:#2aff6e;"></span><span data-i18n="legendMid">中压</span></div>
+                            <div class="item"><span class="dot" style="background:#ffb020;"></span><span data-i18n="legendHigh">高压</span></div>
+                            <div class="item"><span class="dot" style="background:#ff3b3b;"></span><span data-i18n="legendOver">超压</span></div>
+                        </div>
+                    </div>
+                    <div class="sensor-mini-grid">
+                        <div class="sensor-mini" id="mini1L">
+                            <div class="lbl"><span data-i18n="p1Short">P1 脚跟</span></div>
+                            <div class="val"><span id="valL1">--</span><span class="u">kg</span></div>
+                        </div>
+                        <div class="sensor-mini" id="mini2L">
+                            <div class="lbl"><span data-i18n="p2Short">P2 足弓</span></div>
+                            <div class="val"><span id="valL2">--</span><span class="u">kg</span></div>
+                        </div>
+                        <div class="sensor-mini" id="mini3L">
+                            <div class="lbl"><span data-i18n="p3Short">P3 前掌内</span></div>
+                            <div class="val"><span id="valL3">--</span><span class="u">kg</span></div>
+                        </div>
+                        <div class="sensor-mini" id="mini4L">
+                            <div class="lbl"><span data-i18n="p4Short">P4 前掌外</span></div>
+                            <div class="val"><span id="valL4">--</span><span class="u">kg</span></div>
+                        </div>
+                    </div>
+
+                    <!-- 姿态调整建议 -->
+                    <div class="advice-panel" id="adviceL">
+                        <div class="advice-title">
+                            <span class="pulse"></span>
+                            <span data-i18n="adviceTitle">姿态调整建议</span>
+                        </div>
+                        <ul class="advice-list" id="adviceListL"></ul>
+                        <div class="advice-detail" id="adviceDetailL"></div>
+                    </div>
+
+                    <div class="status-mini">
+                        <div class="led-group">
+                            <div class="led-item led-red" id="ledRedL">
+                                <div class="led-dot"></div><span data-i18n="ledRedShort">红</span>
+                            </div>
+                            <div class="led-item led-green" id="ledGreenL">
+                                <div class="led-dot"></div><span data-i18n="ledGreenShort">绿</span>
+                            </div>
+                        </div>
+                        <div class="msg" id="msgL" data-i18n="waiting">等待数据...</div>
+                    </div>
+                    <div>
+                        <div class="chart-mini-title" data-i18n="trendTitle">最近 60 秒</div>
+                        <canvas id="chartL" class="mini-chart"></canvas>
+                    </div>
+                </div>
+
+                <!-- 右脚 -->
+                <div class="foot-column right-side" id="colRight">
+                    <div class="foot-header">
+                        <div class="foot-name">🦶 <span data-i18n="sideRight">右脚</span></div>
+                        <div class="foot-target-badge" id="badgeRight" data-i18n="badgeIdle">空闲</div>
+                    </div>
+                    <div class="foot-panel">
+                        <canvas id="footCanvasR" class="foot-canvas" width="280" height="320"></canvas>
+                        <div class="foot-legend">
+                            <div class="item"><span class="dot" style="background:#4d7dff;"></span><span data-i18n="legendLow">低压</span></div>
+                            <div class="item"><span class="dot" style="background:#2aff6e;"></span><span data-i18n="legendMid">中压</span></div>
+                            <div class="item"><span class="dot" style="background:#ffb020;"></span><span data-i18n="legendHigh">高压</span></div>
+                            <div class="item"><span class="dot" style="background:#ff3b3b;"></span><span data-i18n="legendOver">超压</span></div>
+                        </div>
+                    </div>
+                    <div class="sensor-mini-grid">
+                        <div class="sensor-mini" id="mini1R">
+                            <div class="lbl"><span data-i18n="p1Short">P1 脚跟</span></div>
+                            <div class="val"><span id="valR1">--</span><span class="u">kg</span></div>
+                        </div>
+                        <div class="sensor-mini" id="mini2R">
+                            <div class="lbl"><span data-i18n="p2Short">P2 足弓</span></div>
+                            <div class="val"><span id="valR2">--</span><span class="u">kg</span></div>
+                        </div>
+                        <div class="sensor-mini" id="mini3R">
+                            <div class="lbl"><span data-i18n="p3Short">P3 前掌内</span></div>
+                            <div class="val"><span id="valR3">--</span><span class="u">kg</span></div>
+                        </div>
+                        <div class="sensor-mini" id="mini4R">
+                            <div class="lbl"><span data-i18n="p4Short">P4 前掌外</span></div>
+                            <div class="val"><span id="valR4">--</span><span class="u">kg</span></div>
+                        </div>
+                    </div>
+
+                    <!-- 姿态调整建议 -->
+                    <div class="advice-panel" id="adviceR">
+                        <div class="advice-title">
+                            <span class="pulse"></span>
+                            <span data-i18n="adviceTitle">姿态调整建议</span>
+                        </div>
+                        <ul class="advice-list" id="adviceListR"></ul>
+                        <div class="advice-detail" id="adviceDetailR"></div>
+                    </div>
+
+                    <div class="status-mini">
+                        <div class="led-group">
+                            <div class="led-item led-red" id="ledRedR">
+                                <div class="led-dot"></div><span data-i18n="ledRedShort">红</span>
+                            </div>
+                            <div class="led-item led-green" id="ledGreenR">
+                                <div class="led-dot"></div><span data-i18n="ledGreenShort">绿</span>
+                            </div>
+                        </div>
+                        <div class="msg" id="msgR" data-i18n="waiting">等待数据...</div>
+                    </div>
+                    <div>
+                        <div class="chart-mini-title" data-i18n="trendTitle">最近 60 秒</div>
+                        <canvas id="chartR" class="mini-chart"></canvas>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ===== 曲线页 ===== -->
+        <div class="page" id="page-chart">
+            <div class="card-block">
+                <div class="card-title" data-i18n="chartTitle">压力趋势 · 最近 60 秒</div>
+                <div class="feet-grid">
+                    <div>
+                        <div class="chart-mini-title" style="color:#6d9bff;font-size:13px;margin-bottom:10px;">🦶 <span data-i18n="sideLeft">左脚</span></div>
+                        <canvas id="chartBigL" class="big-chart"></canvas>
+                    </div>
+                    <div>
+                        <div class="chart-mini-title" style="color:#ff6d90;font-size:13px;margin-bottom:10px;">🦶 <span data-i18n="sideRight">右脚</span></div>
+                        <canvas id="chartBigR" class="big-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== 数据页 ===== -->
+        <div class="page" id="page-data">
+            <div class="data-stat">
+                <div class="stat-card left-side">
+                    <div class="num" id="statLeftDays">0</div>
+                    <div class="lbl" data-i18n="statDaysL">左脚历史天数</div>
+                </div>
+                <div class="stat-card left-side">
+                    <div class="num" id="statLeftToday">0</div>
+                    <div class="lbl" data-i18n="statTodayL">左脚今日分钟</div>
+                </div>
+                <div class="stat-card right-side">
+                    <div class="num" id="statRightDays">0</div>
+                    <div class="lbl" data-i18n="statDaysR">右脚历史天数</div>
+                </div>
+                <div class="stat-card right-side">
+                    <div class="num" id="statRightToday">0</div>
+                    <div class="lbl" data-i18n="statTodayR">右脚今日分钟</div>
+                </div>
+            </div>
+            <div class="card-block">
+                <div class="card-title" data-i18n="dataActions">数据操作</div>
+                <div class="data-btn-row">
+                    <button class="data-btn primary" id="exportBtn" data-i18n="btnExportAll">📥 导出全部 CSV</button>
+                    <button class="data-btn danger" id="clearBtn" data-i18n="btnClearAll">🗑 清空全部</button>
+                </div>
+                <div class="hint-text" data-i18n="dataHint">
+                    数据保存在本机浏览器中，不会上传。左脚和右脚各自独立存储。
+                </div>
+            </div>
+            <div class="card-block">
+                <div class="card-title" data-i18n="dataRecent">日汇总趋势（左右脚对比）</div>
+                <div class="daily-columns">
+                    <div>
+                        <div class="chart-mini-title" style="color:#6d9bff;font-size:13px;margin-bottom:8px;">🦶 <span data-i18n="sideLeft">左脚</span></div>
+                        <div class="daily-list" id="dailyListL"></div>
+                    </div>
+                    <div>
+                        <div class="chart-mini-title" style="color:#ff6d90;font-size:13px;margin-bottom:8px;">🦶 <span data-i18n="sideRight">右脚</span></div>
+                        <div class="daily-list" id="dailyListR"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== 关于页 ===== -->
+        <div class="page" id="page-about">
+            <div class="card-block">
+                <div class="card-title" data-i18n="aboutTitle">关于本系统</div>
+                <div class="about-text" data-i18n="aboutText">
+                    <strong>足君健康</strong> 是一款面向糖尿病患者的足底压力监测与预警系统。通过 4 路 FSR 薄膜压力传感器实时采集足底压力分布，超阈值时自动报警，帮助用户及时调整姿势，预防糖尿病足溃疡。
+                </div>
+            </div>
+            <div class="card-block">
+                <div class="card-title" data-i18n="aboutTech">技术信息</div>
+                <div class="setting-row"><span>MCU</span><span class="value">Arduino Nano</span></div>
+                <div class="setting-row"><span data-i18n="techSensor">传感器</span><span class="value">FSR × 4</span></div>
+                <div class="setting-row"><span data-i18n="techDisplay">显示</span><span class="value">SSD1306 128×64</span></div>
+                <div class="setting-row"><span data-i18n="techComm">通信</span><span class="value">USB / HC-06</span></div>
+                <div class="setting-row"><span data-i18n="techStorage">存储</span><span class="value">3-tier LocalStorage × 2 feet</span></div>
+            </div>
+        </div>
+
+    </main>
+</div>
+
 <script>
 (function() {
-    // ===== 阈值（KG）=====
+
+    // ============ i18n ============
+    const I18N = {
+        zh: {
+            appName: '足君健康',
+            appSlogan: 'FootGuard System',
+            appTitle: '足君健康 · 糖尿病足底预警矫正系统',
+            appSubtitle: 'DIABETIC FOOT PRESSURE ALERT & CORRECTION SYSTEM',
+            connTitle: '连接设备',
+            modeUsbShort: '🔌 USB',
+            modeBtShort: '📡 蓝牙',
+            connectBtn: '🔗 连接串口',
+            disconnectBtn: '🔌 断开连接',
+            notConnected: '未连接',
+            connected: '已连接',
+            waiting: '等待数据...',
+            receiving: '接收中',
+            p1Short: 'P1 脚跟', p2Short: 'P2 足弓',
+            p3Short: 'P3 前掌内', p4Short: 'P4 前掌外',
+            ledRedShort: '红', ledGreenShort: '绿',
+            chartTitle: '压力趋势 · 最近 60 秒',
+            trendTitle: '最近 60 秒',
+            warningMsg: '⚠ 超压',
+            normalMsg: '✓ 正常',
+            hintUsb: 'USB 模式：用数据线连接 Arduino Nano，选择它的 COM 口。',
+            hintBt: '蓝牙模式：先配对 HC-06，选择配对后生成的蓝牙 COM 口。',
+            tabMonitor: '监控', tabChart: '曲线', tabData: '数据', tabAbout: '关于',
+            sideLeft: '左脚', sideRight: '右脚',
+            targetLeft: '数据→左脚', targetRight: '数据→右脚',
+            badgeActive: '● 正在接收',
+            badgeIdle: '空闲',
+            legendLow: '低压', legendMid: '中压',
+            legendHigh: '高压', legendOver: '超压',
+            aboutTitle: '关于本系统',
+            aboutText: '<strong>足君健康</strong> 是一款面向糖尿病患者的足底压力监测与预警系统。通过 4 路 FSR 薄膜压力传感器实时采集足底压力分布，超阈值时自动报警，帮助用户及时调整姿势，预防糖尿病足溃疡。',
+            aboutTech: '技术信息',
+            techSensor: '传感器', techDisplay: '显示',
+            techComm: '通信', techStorage: '存储',
+            statDaysL: '左脚历史天数', statTodayL: '左脚今日分钟',
+            statDaysR: '右脚历史天数', statTodayR: '右脚今日分钟',
+            dataActions: '数据操作',
+            btnExportAll: '📥 导出全部 CSV', btnClearAll: '🗑 清空全部',
+            dataHint: '数据保存在本机浏览器中，不会上传。左脚和右脚各自独立存储。',
+            dataRecent: '日汇总趋势（左右脚对比）', dataEmpty: '暂无记录',
+            confirmClear: '确定要清空左右脚的所有历史数据吗？此操作不可恢复。',
+            noDataExport: '没有数据可导出',
+            unitMin: '分',
+            statusTitle: '状态总览',
+            leftFootLabel: '左脚', rightFootLabel: '右脚',
+            adviceTitle: '姿态调整建议',
+            // 姿态建议标题
+            sevMid: '中度超压',
+            sevHigh: '重度超压',
+            toastTitle: '⚠ 足底压力过大',
+            toastTitleMid: '⚠ 足底压力偏高'
+        },
+        en: {
+            appName: 'FootGuard',
+            appSlogan: 'Diabetic Foot System',
+            appTitle: 'FootGuard · Diabetic Foot Pressure Alert System',
+            appSubtitle: 'DIABETIC FOOT PRESSURE ALERT & CORRECTION SYSTEM',
+            connTitle: 'Connect Device',
+            modeUsbShort: '🔌 USB',
+            modeBtShort: '📡 BT',
+            connectBtn: '🔗 Connect',
+            disconnectBtn: '🔌 Disconnect',
+            notConnected: 'Not connected',
+            connected: 'Connected',
+            waiting: 'Waiting...',
+            receiving: 'Receiving',
+            p1Short: 'P1 Heel', p2Short: 'P2 Arch',
+            p3Short: 'P3 Medial', p4Short: 'P4 Lateral',
+            ledRedShort: 'R', ledGreenShort: 'G',
+            chartTitle: 'Pressure Trend · Last 60s',
+            trendTitle: 'Last 60s',
+            warningMsg: '⚠ OVER',
+            normalMsg: '✓ NORMAL',
+            hintUsb: 'USB mode: connect Arduino Nano via data cable, select its COM port.',
+            hintBt: 'Bluetooth mode: pair HC-06 first, then select the Bluetooth COM port.',
+            tabMonitor: 'Monitor', tabChart: 'Chart', tabData: 'Data', tabAbout: 'About',
+            sideLeft: 'Left', sideRight: 'Right',
+            targetLeft: '→ Left', targetRight: '→ Right',
+            badgeActive: '● Receiving',
+            badgeIdle: 'Idle',
+            legendLow: 'Low', legendMid: 'Mid',
+            legendHigh: 'High', legendOver: 'Over',
+            aboutTitle: 'About',
+            aboutText: '<strong>FootGuard</strong> is a plantar pressure monitoring and alert system for diabetic patients. Using 4 FSR film pressure sensors, it monitors pressure distribution across foot regions and alerts when threshold is exceeded, helping prevent diabetic foot ulcers.',
+            aboutTech: 'Technical Info',
+            techSensor: 'Sensors', techDisplay: 'Display',
+            techComm: 'Communication', techStorage: 'Storage',
+            statDaysL: 'Left Days', statTodayL: 'Left Today(min)',
+            statDaysR: 'Right Days', statTodayR: 'Right Today(min)',
+            dataActions: 'Data Actions',
+            btnExportAll: '📥 Export All CSV', btnClearAll: '🗑 Clear All',
+            dataHint: 'Data stored locally. Left and right feet stored separately.',
+            dataRecent: 'Daily Trend (L vs R)', dataEmpty: 'No records',
+            confirmClear: 'Clear ALL data (both feet)? Cannot be undone.',
+            noDataExport: 'No data to export',
+            unitMin: 'min',
+            statusTitle: 'Status',
+            leftFootLabel: 'Left', rightFootLabel: 'Right',
+            adviceTitle: 'Posture Adjustment Advice',
+            sevMid: 'Moderate Overload',
+            sevHigh: 'Severe Overload',
+            toastTitle: '⚠ Plantar Pressure Too High',
+            toastTitleMid: '⚠ Plantar Pressure Elevated'
+        }
+    };
+
+    let lang = localStorage.getItem('foot-lang') || 'zh';
+    const t = (key) => (I18N[lang] && I18N[lang][key]) || key;
+
+    let targetSide = localStorage.getItem('foot-target') || 'L';
+
+    const KEY_RAW = (side) => 'fp_raw_v1_' + side;
+    const KEY_MIN = (side) => 'fp_min_v1_' + side;
+    const KEY_DAILY = (side) => 'fp_daily_v1_' + side;
+
     const THRESHOLDS = [16.0, 3.2, 11.2, 8.0];
     const BAUD_RATE = 9600;
-
-    // ===== 曲线颜色 & 数据缓冲 =====
     const SERIES_COLORS = ['#4d7dff', '#2aff6e', '#ffb020', '#ff4d4d'];
     const MAX_POINTS = 300;
-    const history = [[], [], [], []];
 
-    // ===== DOM =====
+    const state = {
+        L: { weights: [null, null, null, null], history: [[], [], [], []] },
+        R: { weights: [null, null, null, null], history: [[], [], [], [] ] }
+    };
+
+    // 保存告警状态，避免每次刷新都弹 toast
+    const alertState = {
+        L: { active: false, lastSeverity: 0, lastTime: 0 },
+        R: { active: false, lastSeverity: 0, lastTime: 0 }
+    };
+
+    const RAW_KEEP_MS = 24 * 60 * 60 * 1000;
+    const MIN_KEEP_MS = 30 * 24 * 60 * 60 * 1000;
+    const RAW_SAVE_INTERVAL_MS = 10000;
+    const MAX_RAW_RECORDS = 9000;
+
+    // ============ 姿态建议规则 ============
+    // 每条建议：部位索引、严重程度（mid/high）、中英文文案
+    const ADVICE_RULES = {
+        P1_mid: {
+            zh: ['重心稍微前移', '把身体重心向前脚掌方向移动一点，减轻脚跟压力'],
+            en: ['Shift weight slightly forward', 'Move body weight a bit toward the forefoot to relieve heel pressure']
+        },
+        P1_high: {
+            zh: ['立即前移重心', '脚跟压力严重超标！请立刻将重心移到前脚掌，或坐下休息片刻'],
+            en: ['Shift weight forward NOW', 'Heel pressure critically high! Move weight to forefoot immediately, or sit and rest']
+        },
+        P2_mid: {
+            zh: ['重心略微后移', '足弓压力偏高，重心稍向后脚跟方向移动，减轻足弓负荷'],
+            en: ['Shift weight slightly backward', 'Arch pressure elevated. Move weight a bit toward the heel to reduce arch load']
+        },
+        P2_high: {
+            zh: ['立即后移重心', '足弓压力严重超标！请立即向后调整重心，或扶物减轻足弓受力'],
+            en: ['Shift weight backward NOW', 'Arch pressure critically high! Move weight backward immediately, or hold onto something to unload']
+        },
+        P3_mid: {
+            zh: ['重心向外侧偏移', '前掌内侧压力偏高，重心稍稍向外移动'],
+            en: ['Shift weight slightly outward', 'Medial forefoot pressure elevated. Move weight slightly to the outer side']
+        },
+        P3_high: {
+            zh: ['立即向外移重心', '前掌内侧压力严重超标！请立刻向外移动重心，避免内侧持续受压'],
+            en: ['Shift weight outward NOW', 'Medial forefoot critically high! Move weight outward immediately']
+        },
+        P4_mid: {
+            zh: ['重心向内侧偏移', '前掌外侧压力偏高，重心稍稍向内移动'],
+            en: ['Shift weight slightly inward', 'Lateral forefoot pressure elevated. Move weight slightly to the inner side']
+        },
+        P4_high: {
+            zh: ['立即向内移重心', '前掌外侧压力严重超标！请立刻向内移动重心，避免外侧持续受压'],
+            en: ['Shift weight inward NOW', 'Lateral forefoot critically high! Move weight inward immediately']
+        },
+        // 组合情况
+        P3P4_high: {
+            zh: ['前掌压力全面超标', '整个前脚掌严重超压！建议立即坐下休息，抬高双脚，让前掌完全卸载'],
+            en: ['Whole forefoot overloaded', 'Entire forefoot critically overloaded! Sit down, elevate feet, and fully unload the forefoot']
+        },
+        P1P2_high: {
+            zh: ['足跟与足弓同时超压', '足跟和足弓压力同时超标！请坐下休息，避免长时间站立'],
+            en: ['Heel and arch both overloaded', 'Heel and arch pressure both critical! Sit down and avoid prolonged standing']
+        },
+        multi_high: {
+            zh: ['多点严重超压', '多个压力点严重超标！请立刻坐下休息，卸除足底压力'],
+            en: ['Multi-point severe overload', 'Multiple pressure points critically overloaded! Sit down immediately to unload the foot']
+        }
+    };
+
+    // ============ DOM ============
     const connectBtn = document.getElementById('connectBtn');
     const connStatus = document.getElementById('connStatus');
     const connTypeLabel = document.getElementById('connTypeLabel');
     const hintText = document.getElementById('hintText');
-    const footerTag = document.getElementById('footerTag');
     const modeUsb = document.getElementById('modeUsb');
     const modeBt = document.getElementById('modeBt');
 
-    const p1Val = document.getElementById('p1Val');
-    const p2Val = document.getElementById('p2Val');
-    const p3Val = document.getElementById('p3Val');
-    const p4Val = document.getElementById('p4Val');
-    const p1Hint = document.getElementById('p1Hint');
-    const p2Hint = document.getElementById('p2Hint');
-    const p3Hint = document.getElementById('p3Hint');
-    const p4Hint = document.getElementById('p4Hint');
-    const ledRed = document.getElementById('ledRed');
-    const ledGreen = document.getElementById('ledGreen');
-    const statusMsg = document.getElementById('statusMsg');
+    const valL1 = document.getElementById('valL1');
+    const valL2 = document.getElementById('valL2');
+    const valL3 = document.getElementById('valL3');
+    const valL4 = document.getElementById('valL4');
+    const mini1L = document.getElementById('mini1L');
+    const mini2L = document.getElementById('mini2L');
+    const mini3L = document.getElementById('mini3L');
+    const mini4L = document.getElementById('mini4L');
+    const ledRedL = document.getElementById('ledRedL');
+    const ledGreenL = document.getElementById('ledGreenL');
+    const msgL = document.getElementById('msgL');
 
-    // ===== 图表 Canvas =====
-    const canvas = document.getElementById('chartCanvas');
-    const ctx = canvas.getContext('2d');
-    let chartWidth = 0, chartHeight = 0;
+    const valR1 = document.getElementById('valR1');
+    const valR2 = document.getElementById('valR2');
+    const valR3 = document.getElementById('valR3');
+    const valR4 = document.getElementById('valR4');
+    const mini1R = document.getElementById('mini1R');
+    const mini2R = document.getElementById('mini2R');
+    const mini3R = document.getElementById('mini3R');
+    const mini4R = document.getElementById('mini4R');
+    const ledRedR = document.getElementById('ledRedR');
+    const ledGreenR = document.getElementById('ledGreenR');
+    const msgR = document.getElementById('msgR');
 
-    function resizeCanvas() {
-        const rect = canvas.getBoundingClientRect();
-        const dpr = window.devicePixelRatio || 1;
-        canvas.width = rect.width * dpr;
-        canvas.height = rect.height * dpr;
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        chartWidth = rect.width;
-        chartHeight = rect.height;
-        drawChart();
-    }
+    const colLeft = document.getElementById('colLeft');
+    const colRight = document.getElementById('colRight');
+    const badgeLeft = document.getElementById('badgeLeft');
+    const badgeRight = document.getElementById('badgeRight');
 
-    window.addEventListener('resize', resizeCanvas);
+    const sidebarL = document.getElementById('sidebarL');
+    const sidebarR = document.getElementById('sidebarR');
 
-    // ===== 状态 =====
+    // 姿态建议面板
+    const adviceL = document.getElementById('adviceL');
+    const adviceR = document.getElementById('adviceR');
+    const adviceListL = document.getElementById('adviceListL');
+    const adviceListR = document.getElementById('adviceListR');
+    const adviceDetailL = document.getElementById('adviceDetailL');
+    const adviceDetailR = document.getElementById('adviceDetailR');
+
+    const toastContainer = document.getElementById('toastContainer');
+
+    const footCanvasL = document.getElementById('footCanvasL');
+    const footCtxL = footCanvasL.getContext('2d');
+    const footCanvasR = document.getElementById('footCanvasR');
+    const footCtxR = footCanvasR.getContext('2d');
+
+    const chartL = document.getElementById('chartL');
+    const ctxL = chartL.getContext('2d');
+    const chartR = document.getElementById('chartR');
+    const ctxR = chartR.getContext('2d');
+    const chartBigL = document.getElementById('chartBigL');
+    const ctxBigL = chartBigL.getContext('2d');
+    const chartBigR = document.getElementById('chartBigR');
+    const ctxBigR = chartBigR.getContext('2d');
+
     let port = null;
     let reader = null;
     let keepReading = false;
-    let weights = [null, null, null, null];
     let currentMode = 'usb';
+    let lastRawSaveTime = 0;
+    let lastRawWarning = false;
 
-    // ===== 模式切换 =====
+    // ============ 语言 ============
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            lang = btn.getAttribute('data-lang');
+            localStorage.setItem('foot-lang', lang);
+            applyLang();
+        });
+    });
+
+    function applyLang() {
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (I18N[lang][key]) {
+                if (key === 'aboutText') el.innerHTML = I18N[lang][key];
+                else el.textContent = I18N[lang][key];
+            }
+        });
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+        });
+        document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
+
+        if (!port) {
+            hintText.textContent = currentMode === 'usb' ? t('hintUsb') : t('hintBt');
+            connStatus.textContent = t('notConnected');
+            connTypeLabel.textContent = t('notConnected');
+            connectBtn.textContent = t('connectBtn');
+        } else {
+            const modeLabel = currentMode === 'usb' ? 'USB' : (lang === 'zh' ? '蓝牙' : 'BT');
+            connStatus.textContent = `${t('connected')} · ${modeLabel}`;
+            connTypeLabel.textContent = modeLabel;
+            connectBtn.textContent = t('disconnectBtn');
+        }
+
+        refreshTargetUI();
+        refreshBothFeetDisplay();
+        refreshDataPage();
+    }
+
+    // ============ 目标脚 ============
+    document.querySelectorAll('.side-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            targetSide = btn.getAttribute('data-side');
+            localStorage.setItem('foot-target', targetSide);
+            refreshTargetUI();
+        });
+    });
+
+    function refreshTargetUI() {
+        document.querySelectorAll('.side-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.getAttribute('data-side') === targetSide);
+        });
+        colLeft.classList.toggle('active-target', targetSide === 'L');
+        colRight.classList.toggle('active-target', targetSide === 'R');
+        const activeTxt = t('badgeActive');
+        const idleTxt = t('badgeIdle');
+        badgeLeft.textContent = (targetSide === 'L' && port) ? activeTxt : idleTxt;
+        badgeRight.textContent = (targetSide === 'R' && port) ? activeTxt : idleTxt;
+    }
+
+    // ============ Tab ============
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            const page = tab.getAttribute('data-page');
+            document.querySelectorAll('.nav-tab').forEach(t2 => t2.classList.toggle('active', t2 === tab));
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById('page-' + page).classList.add('active');
+            const mainTitle = document.getElementById('mainTitle');
+            mainTitle.style.display = (page === 'monitor') ? 'block' : 'none';
+            if (page === 'chart') setTimeout(resizeBigCharts, 50);
+            if (page === 'monitor') setTimeout(() => { resizeMiniCharts(); drawFootMap('L'); drawFootMap('R'); }, 50);
+            if (page === 'data') refreshDataPage();
+        });
+    });
+
+    // ============ 模式 ============
     modeUsb.addEventListener('click', () => setMode('usb'));
     modeBt.addEventListener('click', () => setMode('bt'));
 
     function setMode(mode) {
-        if (port) { alert('请先断开当前连接，再切换模式。'); return; }
+        if (port) { alert(lang === 'zh' ? '请先断开连接' : 'Disconnect first'); return; }
         currentMode = mode;
         if (mode === 'usb') {
-            modeUsb.classList.add('active');
-            modeBt.classList.remove('active');
-            hintText.textContent = 'USB 模式：用数据线连接 Arduino Nano，选择它的 COM 口。';
+            modeUsb.classList.add('active'); modeBt.classList.remove('active');
         } else {
-            modeBt.classList.add('active');
-            modeUsb.classList.remove('active');
-            hintText.textContent = '蓝牙模式：先配对 HC-06，选择配对后生成的蓝牙 COM 口。';
+            modeBt.classList.add('active'); modeUsb.classList.remove('active');
         }
+        hintText.textContent = mode === 'usb' ? t('hintUsb') : t('hintBt');
     }
 
-    // ===== 连接 =====
+    // ============ 连接 ============
     connectBtn.addEventListener('click', async () => {
         if (port) await disconnect(); else await connect();
     });
 
     async function connect() {
         if (!('serial' in navigator)) {
-            alert('当前浏览器不支持 Web Serial。\n请使用 Chrome 或 Edge，并通过 https 或 localhost 打开本页面。');
+            alert(lang === 'zh'
+                ? '当前浏览器不支持 Web Serial。\n请使用 Chrome 或 Edge，并通过 https 或 localhost 打开。'
+                : 'Web Serial not supported.\nPlease use Chrome or Edge over https or localhost.');
             return;
         }
         try {
             port = await navigator.serial.requestPort();
             await port.open({ baudRate: BAUD_RATE });
 
-            const label = currentMode === 'usb' ? 'USB' : '蓝牙';
-            connStatus.textContent = `已连接 · ${label} · 等待数据`;
+            const modeLabel = currentMode === 'usb' ? 'USB' : (lang === 'zh' ? '蓝牙' : 'BT');
+            connStatus.textContent = `${t('connected')} · ${modeLabel}`;
             connStatus.classList.add('connected');
-            connTypeLabel.textContent = `${label} · ${BAUD_RATE}`;
-            connectBtn.textContent = '🔌 断开连接';
+            connTypeLabel.textContent = modeLabel;
+            connectBtn.textContent = t('disconnectBtn');
             connectBtn.classList.add('disconnect');
             modeUsb.disabled = true;
             modeBt.disabled = true;
 
+            refreshTargetUI();
             keepReading = true;
             readLoop();
         } catch (err) {
             console.error(err);
             if (err.name !== 'NotFoundError') {
                 const tips = currentMode === 'usb'
-                    ? '\n\nUSB 模式提示：\n1. 确认 Nano 已用数据线连到电脑\n2. 安装 CH340 驱动\n3. 关闭 Arduino IDE 的串口监视器\n4. 选择 Nano 对应的 COM 口'
-                    : '\n\n蓝牙模式提示：\n1. 先配对 HC-06（密码 1234）\n2. 配对后生成蓝牙 COM 口\n3. 选择该蓝牙 COM 口\n4. 关闭占用该串口的其他软件';
-                alert('连接失败：' + err.message + tips);
+                    ? (lang === 'zh'
+                        ? '\n\nUSB 提示：\n1. 确认 Nano 已用数据线连到电脑\n2. 安装 CH340 驱动\n3. 关闭 Arduino IDE 的串口监视器\n4. 选择正确的 COM 口'
+                        : '\n\nUSB tips:\n1. Make sure Nano is connected via data cable\n2. Install CH340 driver\n3. Close Arduino IDE serial monitor\n4. Select the correct COM port')
+                    : (lang === 'zh'
+                        ? '\n\n蓝牙提示：\n1. 先配对 HC-06（密码 1234）\n2. 配对后生成蓝牙 COM 口\n3. 选择该蓝牙 COM 口\n4. 关闭占用该串口的其他软件'
+                        : '\n\nBluetooth tips:\n1. Pair HC-06 first (password 1234)\n2. A Bluetooth COM port will appear\n3. Select that COM port\n4. Close other software using the port');
+                alert((lang === 'zh' ? '连接失败：' : 'Connection failed: ') + err.message + tips);
             }
             port = null;
             resetUI();
@@ -415,16 +1286,17 @@
     }
 
     function resetUI() {
-        connStatus.textContent = '未连接';
+        connStatus.textContent = t('notConnected');
         connStatus.classList.remove('connected');
-        connTypeLabel.textContent = '未连接';
-        connectBtn.textContent = '🔗 连接串口';
+        connTypeLabel.textContent = t('notConnected');
+        connectBtn.textContent = t('connectBtn');
         connectBtn.classList.remove('disconnect');
         modeUsb.disabled = false;
         modeBt.disabled = false;
+        refreshTargetUI();
     }
 
-    // ===== 串口读取 =====
+    // ============ 串口 ============
     async function readLoop() {
         const decoder = new TextDecoder();
         let buffer = '';
@@ -440,7 +1312,7 @@
                     lines.forEach(line => parseLine(line.trim()));
                 }
             } catch (e) {
-                console.error('读取错误:', e);
+                console.error('Read error:', e);
                 break;
             } finally {
                 if (reader) { try { reader.releaseLock(); } catch (_) {} reader = null; }
@@ -452,59 +1324,492 @@
         if (!line) return;
         const m = line.match(/P1:([\d.]+)\s*kg\s+P2:([\d.]+)\s*kg\s+P3:([\d.]+)\s*kg\s+P4:([\d.]+)\s*kg/);
         if (m) {
-            weights[0] = parseFloat(m[1]);
-            weights[1] = parseFloat(m[2]);
-            weights[2] = parseFloat(m[3]);
-            weights[3] = parseFloat(m[4]);
-            updateDisplay();
+            const s = targetSide;
+            state[s].weights[0] = parseFloat(m[1]);
+            state[s].weights[1] = parseFloat(m[2]);
+            state[s].weights[2] = parseFloat(m[3]);
+            state[s].weights[3] = parseFloat(m[4]);
 
-            const label = currentMode === 'usb' ? 'USB' : '蓝牙';
-            connStatus.textContent = `已连接 · ${label} · 接收中`;
+            updateFootDisplay(s);
+            drawFootMap(s);
+            evaluateAdvice(s);
+            maybeSaveRaw(s, state[s].weights, state[s].weights.some((v, i) => v > THRESHOLDS[i]));
+
+            const modeLabel = currentMode === 'usb' ? 'USB' : (lang === 'zh' ? '蓝牙' : 'BT');
+            connStatus.textContent = `${t('connected')} · ${modeLabel} · ${t('receiving')}`;
         }
     }
 
-    // ===== 更新 =====
-    function updateDisplay() {
-        const w = weights;
+    // ============ 更新显示 ============
+    function updateFootDisplay(side) {
+        const w = state[side].weights;
+
+        if (side === 'L') {
+            valL1.textContent = w[0] === null ? '--' : w[0].toFixed(1);
+            valL2.textContent = w[1] === null ? '--' : w[1].toFixed(1);
+            valL3.textContent = w[2] === null ? '--' : w[2].toFixed(1);
+            valL4.textContent = w[3] === null ? '--' : w[3].toFixed(1);
+        } else {
+            valR1.textContent = w[0] === null ? '--' : w[0].toFixed(1);
+            valR2.textContent = w[1] === null ? '--' : w[1].toFixed(1);
+            valR3.textContent = w[2] === null ? '--' : w[2].toFixed(1);
+            valR4.textContent = w[3] === null ? '--' : w[3].toFixed(1);
+        }
+
+        if (w[0] !== null) {
+            const warn = w.map((v, i) => v > THRESHOLDS[i]);
+            const minis = side === 'L'
+                ? [mini1L, mini2L, mini3L, mini4L]
+                : [mini1R, mini2R, mini3R, mini4R];
+            minis.forEach((m, i) => m.classList.toggle('warn', warn[i]));
+
+            const ledR = side === 'L' ? ledRedL : ledRedR;
+            const ledG = side === 'L' ? ledGreenL : ledGreenR;
+            const msg  = side === 'L' ? msgL : msgR;
+
+            const anyWarn = warn.some(Boolean);
+            if (anyWarn) {
+                ledR.classList.add('on'); ledG.classList.remove('on');
+                msg.textContent = t('warningMsg');
+                msg.classList.add('warning');
+            } else {
+                ledR.classList.remove('on'); ledG.classList.add('on');
+                msg.textContent = t('normalMsg');
+                msg.classList.remove('warning');
+            }
+
+            const col = side === 'L' ? colLeft : colRight;
+            col.classList.toggle('alerting', anyWarn);
+
+            const maxV = Math.max(...w);
+            if (side === 'L') sidebarL.textContent = maxV.toFixed(1) + ' kg' + (anyWarn ? ' ⚠' : '');
+            else sidebarR.textContent = maxV.toFixed(1) + ' kg' + (anyWarn ? ' ⚠' : '');
+        }
+
+        if (w[0] !== null) {
+            const hist = state[side].history;
+            for (let i = 0; i < 4; i++) {
+                hist[i].push(w[i]);
+                if (hist[i].length > MAX_POINTS) hist[i].shift();
+            }
+            drawMiniChart(side);
+            drawBigChart(side);
+        }
+    }
+
+    function refreshBothFeetDisplay() {
+        updateFootDisplay('L');
+        updateFootDisplay('R');
+        if (state.L.weights[0] === null) {
+            [mini1L, mini2L, mini3L, mini4L].forEach(m => m.classList.remove('warn'));
+            ledRedL.classList.remove('on'); ledGreenL.classList.remove('on');
+            msgL.textContent = t('waiting'); msgL.classList.remove('warning');
+            sidebarL.textContent = '--';
+            adviceL.classList.remove('show');
+            colLeft.classList.remove('alerting');
+        }
+        if (state.R.weights[0] === null) {
+            [mini1R, mini2R, mini3R, mini4R].forEach(m => m.classList.remove('warn'));
+            ledRedR.classList.remove('on'); ledGreenR.classList.remove('on');
+            msgR.textContent = t('waiting'); msgR.classList.remove('warning');
+            sidebarR.textContent = '--';
+            adviceR.classList.remove('show');
+            colRight.classList.remove('alerting');
+        }
+    }
+
+    // ============ 姿态建议评估 ============
+    function evaluateAdvice(side) {
+        const w = state[side].weights;
         if (w[0] === null) return;
 
-        p1Val.innerHTML = w[0].toFixed(1) + '<span class="unit">kg</span>';
-        p2Val.innerHTML = w[1].toFixed(1) + '<span class="unit">kg</span>';
-        p3Val.innerHTML = w[2].toFixed(1) + '<span class="unit">kg</span>';
-        p4Val.innerHTML = w[3].toFixed(1) + '<span class="unit">kg</span>';
-
-        p1Hint.textContent = w[0] > THRESHOLDS[0] ? '⚠️ 超压' : '';
-        p2Hint.textContent = w[1] > THRESHOLDS[1] ? '⚠️ 超压' : '';
-        p3Hint.textContent = w[2] > THRESHOLDS[2] ? '⚠️ 超压' : '';
-        p4Hint.textContent = w[3] > THRESHOLDS[3] ? '⚠️ 超压' : '';
-
-        const warning = w.some((v, i) => v > THRESHOLDS[i]);
-        if (warning) {
-            ledRed.classList.add('active');
-            ledGreen.classList.remove('active');
-            statusMsg.textContent = 'WARNING! CHECK POINTS';
-            statusMsg.classList.add('warning');
-        } else {
-            ledRed.classList.remove('active');
-            ledGreen.classList.add('active');
-            statusMsg.textContent = 'Status: NORMAL';
-            statusMsg.classList.remove('warning');
-        }
-
+        const overList = [];  // { idx, ratio }
         for (let i = 0; i < 4; i++) {
-            history[i].push(w[i]);
-            if (history[i].length > MAX_POINTS) history[i].shift();
+            if (w[i] > THRESHOLDS[i]) {
+                const ratio = (w[i] - THRESHOLDS[i]) / THRESHOLDS[i];
+                overList.push({ idx: i, ratio });
+            }
         }
-        drawChart();
 
-        const label = currentMode === 'usb' ? 'USB' : '蓝牙';
-        footerTag.textContent = `📡 ${label} · 真实数据`;
+        const panel = side === 'L' ? adviceL : adviceR;
+        const listEl = side === 'L' ? adviceListL : adviceListR;
+        const detailEl = side === 'L' ? adviceDetailL : adviceDetailR;
+
+        if (overList.length === 0) {
+            panel.classList.remove('show');
+            alertState[side].active = false;
+            alertState[side].lastSeverity = 0;
+            return;
+        }
+
+        // 计算整体严重程度
+        const maxRatio = Math.max(...overList.map(o => o.ratio));
+        const isSevere = maxRatio >= 0.5;
+        const severity = isSevere ? 'high' : 'mid';
+
+        // 选择合适规则
+        const advices = [];
+        if (overList.length >= 3) {
+            // 多点严重
+            const rule = isSevere ? ADVICE_RULES.multi_high : ADVICE_RULES.multi_high;
+            advices.push({ title: rule[lang][0], desc: rule[lang][1], sev: severity });
+        } else if (overList.length === 2) {
+            const idxs = overList.map(o => o.idx).sort();
+            if (idxs[0] === 2 && idxs[1] === 3 && isSevere) {
+                const rule = ADVICE_RULES.P3P4_high;
+                advices.push({ title: rule[lang][0], desc: rule[lang][1], sev: 'high' });
+            } else if (idxs[0] === 0 && idxs[1] === 1 && isSevere) {
+                const rule = ADVICE_RULES.P1P2_high;
+                advices.push({ title: rule[lang][0], desc: rule[lang][1], sev: 'high' });
+            } else {
+                // 逐条
+                overList.forEach(o => {
+                    const key = 'P' + (o.idx + 1) + '_' + severity;
+                    const rule = ADVICE_RULES[key];
+                    if (rule) advices.push({ title: rule[lang][0], desc: rule[lang][1], sev: severity });
+                });
+            }
+        } else {
+            // 单点
+            const o = overList[0];
+            const key = 'P' + (o.idx + 1) + '_' + severity;
+            const rule = ADVICE_RULES[key];
+            if (rule) advices.push({ title: rule[lang][0], desc: rule[lang][1], sev: severity });
+        }
+
+        // 更新建议面板
+        listEl.innerHTML = advices.map(a =>
+            `<li><strong>${a.title}</strong><br>${a.desc}</li>`
+        ).join('');
+
+        const pointNames = ['P1 脚跟', 'P2 足弓', 'P3 前掌内', 'P4 前掌外'];
+        const detailLines = overList.map(o =>
+            `${pointNames[o.idx]}: ${w[o.idx].toFixed(1)} kg / 阈 ${THRESHOLDS[o.idx]} kg (超 ${(o.ratio*100).toFixed(0)}%)`
+        ).join('<br>');
+        detailEl.innerHTML = detailLines;
+
+        panel.classList.remove('sev-mid', 'sev-high');
+        panel.classList.add('show');
+        panel.classList.add(isSevere ? 'sev-high' : 'sev-mid');
+
+        // 弹 Toast（每 6 秒最多弹一次，或严重程度提高时立即弹）
+        const now = Date.now();
+        const lastSev = alertState[side].lastSeverity;
+        const curSevNum = isSevere ? 2 : 1;
+        const shouldToast = !alertState[side].active ||
+                            (curSevNum > lastSev) ||
+                            (now - alertState[side].lastTime > 6000);
+
+        if (shouldToast) {
+            showToast(side, advices, isSevere, overList);
+            alertState[side].active = true;
+            alertState[side].lastSeverity = curSevNum;
+            alertState[side].lastTime = now;
+        }
     }
 
-    // ===== 画图 =====
-    function drawChart() {
-        if (!chartWidth || !chartHeight) return;
-        ctx.clearRect(0, 0, chartWidth, chartHeight);
+    // ============ Toast ============
+    function showToast(side, advices, isSevere, overList) {
+        const sideLabel = side === 'L' ? t('sideLeft') : t('sideRight');
+        const title = isSevere ? t('toastTitle') : t('toastTitleMid');
+
+        const toast = document.createElement('div');
+        toast.className = 'toast' + (isSevere ? '' : ' sev-mid');
+
+        // 部位标签
+        const pointNames = ['P1 脚跟', 'P2 足弓', 'P3 前掌内', 'P4 前掌外'];
+        const pointTags = overList.map(o =>
+            `<span class="toast-tag">${pointNames[o.idx]}</span>`
+        ).join('');
+
+        const adviceHtml = advices.map(a =>
+            `<div style="margin-top:6px;"><strong style="color:#fff;">${a.title}</strong><br>${a.desc}</div>`
+        ).join('');
+
+        toast.innerHTML = `
+            <div class="toast-head">
+                <div class="toast-title">
+                    <span class="pulse" style="width:8px;height:8px;border-radius:50%;background:currentColor;display:inline-block;animation:dotPulse 1s infinite;"></span>
+                    ${title}
+                </div>
+                <button class="toast-close" aria-label="close">✕</button>
+            </div>
+            <div class="toast-body">
+                <div style="margin-bottom:6px;">${sideLabel} · ${isSevere ? t('sevHigh') : t('sevMid')}</div>
+                <div>${pointTags}</div>
+                ${adviceHtml}
+            </div>
+        `;
+
+        toast.querySelector('.toast-close').addEventListener('click', () => {
+            toast.remove();
+        });
+
+        toastContainer.appendChild(toast);
+
+        // 自动消失
+        const lifetime = isSevere ? 8000 : 5000;
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.style.transition = 'all 0.3s';
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(60px)';
+                setTimeout(() => toast.remove(), 300);
+            }
+        }, lifetime);
+
+        // 最多同时显示 3 条
+        while (toastContainer.children.length > 3) {
+            toastContainer.removeChild(toastContainer.firstChild);
+        }
+    }
+
+    // ============ 存储 ============
+    function readStore(key) {
+        try {
+            const raw = localStorage.getItem(key);
+            return raw ? JSON.parse(raw) : [];
+        } catch (e) { console.error(e); return []; }
+    }
+    function writeStore(key, arr) {
+        try { localStorage.setItem(key, JSON.stringify(arr)); }
+        catch (e) { console.error(e); }
+    }
+
+    function maybeSaveRaw(side, w, warning) {
+        if (w[0] === null) return;
+        const now = Date.now();
+        const shouldSave = (now - lastRawSaveTime >= RAW_SAVE_INTERVAL_MS) ||
+                           (warning && !lastRawWarning);
+        if (!shouldSave) return;
+        lastRawSaveTime = now;
+        lastRawWarning = warning;
+
+        const raw = readStore(KEY_RAW(side));
+        raw.push({ t: now, p: [w[0], w[1], w[2], w[3]], w: warning ? 1 : 0 });
+
+        const cutoff = now - RAW_KEEP_MS;
+        let filtered = raw.filter(r => r.t >= cutoff);
+        if (filtered.length > MAX_RAW_RECORDS) {
+            filtered = filtered.slice(filtered.length - MAX_RAW_RECORDS);
+        }
+        writeStore(KEY_RAW(side), filtered);
+        maybeAggregateMinute(side, filtered);
+    }
+
+    function getMinuteKey(ts) {
+        const d = new Date(ts);
+        return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+    }
+    function getDayKey(ts) {
+        const d = new Date(ts);
+        return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    }
+
+    function maybeAggregateMinute(side, raw) {
+        if (raw.length === 0) return;
+        const minuteMap = {};
+        for (const r of raw) {
+            const key = getMinuteKey(r.t);
+            if (!minuteMap[key]) minuteMap[key] = [];
+            minuteMap[key].push(r);
+        }
+        const minutes = readStore(KEY_MIN(side));
+        const existingKeys = new Set(minutes.map(m => m.k));
+        const nowMinuteKey = getMinuteKey(Date.now());
+
+        for (const key in minuteMap) {
+            if (key === nowMinuteKey) continue;
+            if (existingKeys.has(key)) continue;
+            const group = minuteMap[key];
+            if (group.length === 0) continue;
+
+            const avg = [0,0,0,0], max = [0,0,0,0];
+            let warnCnt = 0;
+            for (const r of group) {
+                for (let i = 0; i < 4; i++) {
+                    avg[i] += r.p[i];
+                    if (r.p[i] > max[i]) max[i] = r.p[i];
+                }
+                if (r.w) warnCnt++;
+            }
+            for (let i = 0; i < 4; i++) avg[i] = +(avg[i] / group.length).toFixed(2);
+
+            minutes.push({
+                k: key, t: group[0].t,
+                avg, max, warnCnt, cnt: group.length
+            });
+        }
+        const cutoff = Date.now() - MIN_KEEP_MS;
+        const filtered = minutes.filter(m => m.t >= cutoff);
+        writeStore(KEY_MIN(side), filtered);
+        maybeAggregateDaily(side, filtered);
+    }
+
+    function maybeAggregateDaily(side, minutes) {
+        if (minutes.length === 0) return;
+        const dayMap = {};
+        for (const m of minutes) {
+            const key = getDayKey(m.t);
+            if (!dayMap[key]) dayMap[key] = [];
+            dayMap[key].push(m);
+        }
+        const dailies = readStore(KEY_DAILY(side));
+        const existingDays = new Set(dailies.map(d => d.d));
+        const todayKey = getDayKey(Date.now());
+
+        for (const day in dayMap) {
+            if (day === todayKey) continue;
+            if (existingDays.has(day)) continue;
+            const dayMins = dayMap[day];
+            if (dayMins.length === 0) continue;
+
+            const allValues = [[], [], [], []];
+            let warnMin = 0, totalCnt = 0;
+            for (const m of dayMins) {
+                for (let i = 0; i < 4; i++) allValues[i].push(m.avg[i]);
+                if (m.warnCnt > 0) warnMin++;
+                totalCnt += m.cnt;
+            }
+            const avg = [0,0,0,0], max = [0,0,0,0], p95 = [0,0,0,0];
+            for (let i = 0; i < 4; i++) {
+                const arr = allValues[i].slice().sort((a,b) => a - b);
+                avg[i] = +(arr.reduce((s,v) => s+v, 0) / arr.length).toFixed(2);
+                max[i] = +arr[arr.length - 1].toFixed(2);
+                const idx = Math.min(arr.length - 1, Math.floor(arr.length * 0.95));
+                p95[i] = +arr[idx].toFixed(2);
+            }
+            dailies.push({
+                d: day, avg, max, p95,
+                warnMin, cnt: totalCnt, minutes: dayMins.length
+            });
+        }
+        dailies.sort((a, b) => a.d.localeCompare(b.d));
+        writeStore(KEY_DAILY(side), dailies);
+    }
+
+    // ============ 数据页 ============
+    function refreshDataPage() {
+        const dL = readStore(KEY_DAILY('L'));
+        const dR = readStore(KEY_DAILY('R'));
+        const mL = readStore(KEY_MIN('L'));
+        const mR = readStore(KEY_MIN('R'));
+        const todayKey = getDayKey(Date.now());
+        const tL = mL.filter(m => getDayKey(m.t) === todayKey).length;
+        const tR = mR.filter(m => getDayKey(m.t) === todayKey).length;
+
+        document.getElementById('statLeftDays').textContent = dL.length;
+        document.getElementById('statLeftToday').textContent = tL;
+        document.getElementById('statRightDays').textContent = dR.length;
+        document.getElementById('statRightToday').textContent = tR;
+
+        renderDailyList('L', dL);
+        renderDailyList('R', dR);
+    }
+
+    function renderDailyList(side, dailies) {
+        const listEl = document.getElementById(side === 'L' ? 'dailyListL' : 'dailyListR');
+        if (dailies.length === 0) {
+            listEl.innerHTML = `<div class="record-empty">${t('dataEmpty')}</div>`;
+            return;
+        }
+        const recent = dailies.slice(-20).reverse();
+        const maxOverall = Math.max(...dailies.map(x => Math.max(...x.max))) || 1;
+
+        listEl.innerHTML = recent.map(d => {
+            const bars = [0,1,2,3].map(i => {
+                const h = Math.max(3, Math.round((d.max[i] / maxOverall) * 20));
+                return `<div class="bar" style="height:${h}px;background:${SERIES_COLORS[i]};"></div>`;
+            }).join('');
+            return `<div class="daily-row">
+                <span class="date">${d.d.slice(5)}</span>
+                <div class="bars">${bars}</div>
+                <span class="warn-min">${d.warnMin}${t('unitMin')}</span>
+                <span class="wear">${d.minutes}${t('unitMin')}</span>
+            </div>`;
+        }).join('');
+    }
+
+    // ============ 导出 ============
+    document.getElementById('exportBtn').addEventListener('click', () => {
+        const dL = readStore(KEY_DAILY('L'));
+        const dR = readStore(KEY_DAILY('R'));
+        const mL = readStore(KEY_MIN('L'));
+        const mR = readStore(KEY_MIN('R'));
+        if (dL.length + dR.length + mL.length + mR.length === 0) {
+            alert(t('noDataExport'));
+            return;
+        }
+        let csv = buildCSV('LEFT', dL, mL) + '\n\n' + buildCSV('RIGHT', dR, mR);
+        const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `foot-pressure-both-${getDayKey(Date.now())}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+    });
+
+    function buildCSV(label, dailies, minutes) {
+        let csv = `=== ${label} FOOT - DAILY SUMMARY ===\n`;
+        csv += 'Date,P1_avg,P2_avg,P3_avg,P4_avg,P1_max,P2_max,P3_max,P4_max,P1_p95,P2_p95,P3_p95,P4_p95,WarnMinutes,TotalMinutes\n';
+        for (const d of dailies) {
+            csv += `${d.d},${d.avg[0]},${d.avg[1]},${d.avg[2]},${d.avg[3]},`;
+            csv += `${d.max[0]},${d.max[1]},${d.max[2]},${d.max[3]},`;
+            csv += `${d.p95[0]},${d.p95[1]},${d.p95[2]},${d.p95[3]},`;
+            csv += `${d.warnMin},${d.minutes}\n`;
+        }
+        csv += `\n=== ${label} FOOT - MINUTE DATA ===\n`;
+        csv += 'MinuteKey,Timestamp,P1_avg,P2_avg,P3_avg,P4_avg,P1_max,P2_max,P3_max,P4_max,WarnCount,SampleCount\n';
+        for (const m of minutes) {
+            csv += `${m.k},${m.t},${m.avg[0]},${m.avg[1]},${m.avg[2]},${m.avg[3]},`;
+            csv += `${m.max[0]},${m.max[1]},${m.max[2]},${m.max[3]},`;
+            csv += `${m.warnCnt},${m.cnt}\n`;
+        }
+        return csv;
+    }
+
+    document.getElementById('clearBtn').addEventListener('click', () => {
+        if (confirm(t('confirmClear'))) {
+            ['L', 'R'].forEach(s => {
+                localStorage.removeItem(KEY_RAW(s));
+                localStorage.removeItem(KEY_MIN(s));
+                localStorage.removeItem(KEY_DAILY(s));
+            });
+            refreshDataPage();
+        }
+    });
+
+    // ============ 曲线 ============
+    function resizeMiniCharts() {
+        [['L', chartL, ctxL], ['R', chartR, ctxR]].forEach(([side, c, cx]) => {
+            const rect = c.getBoundingClientRect();
+            if (rect.width === 0) return;
+            const dpr = window.devicePixelRatio || 1;
+            c.width = rect.width * dpr;
+            c.height = rect.height * dpr;
+            cx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            drawMiniChart(side);
+        });
+    }
+    function resizeBigCharts() {
+        [['L', chartBigL, ctxBigL], ['R', chartBigR, ctxBigR]].forEach(([side, c, cx]) => {
+            const rect = c.getBoundingClientRect();
+            if (rect.width === 0) return;
+            const dpr = window.devicePixelRatio || 1;
+            c.width = rect.width * dpr;
+            c.height = rect.height * dpr;
+            cx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            drawBigChart(side);
+        });
+    }
+    window.addEventListener('resize', () => { resizeMiniCharts(); resizeBigCharts(); });
+
+    function drawChartOn(cx, c, history, compact) {
+        const rect = c.getBoundingClientRect();
+        const w = rect.width, h = rect.height;
+        if (!w || !h) return;
+        cx.clearRect(0, 0, w, h);
 
         let maxVal = Math.max(...THRESHOLDS);
         for (let i = 0; i < 4; i++) {
@@ -513,82 +1818,253 @@
         maxVal = maxVal * 1.15 || 10;
         if (maxVal < 5) maxVal = 5;
 
-        const padLeft = 32, padRight = 8, padTop = 10, padBottom = 20;
-        const plotW = chartWidth - padLeft - padRight;
-        const plotH = chartHeight - padTop - padBottom;
+        const padLeft = compact ? 24 : 32;
+        const padRight = 6;
+        const padTop = 6;
+        const padBottom = compact ? 14 : 20;
+        const plotW = w - padLeft - padRight;
+        const plotH = h - padTop - padBottom;
 
-        // 网格
-        ctx.strokeStyle = '#1c2536';
-        ctx.lineWidth = 1;
-        ctx.font = '10px "Segoe UI", sans-serif';
-        ctx.fillStyle = '#6b7b9c';
-        ctx.textAlign = 'right';
-        ctx.textBaseline = 'middle';
+        cx.strokeStyle = '#1c2536';
+        cx.lineWidth = 1;
+        cx.font = compact ? '8px "Segoe UI"' : '10px "Segoe UI"';
+        cx.fillStyle = '#6b7b9c';
+        cx.textAlign = 'right';
+        cx.textBaseline = 'middle';
 
-        const yTicks = 4;
+        const yTicks = compact ? 2 : 4;
         for (let i = 0; i <= yTicks; i++) {
             const yVal = (maxVal / yTicks) * i;
             const y = padTop + plotH - (yVal / maxVal) * plotH;
-            ctx.beginPath();
-            ctx.moveTo(padLeft, y);
-            ctx.lineTo(padLeft + plotW, y);
-            ctx.stroke();
-            ctx.fillText(yVal.toFixed(1), padLeft - 6, y);
+            cx.beginPath();
+            cx.moveTo(padLeft, y);
+            cx.lineTo(padLeft + plotW, y);
+            cx.stroke();
+            cx.fillText(yVal.toFixed(0), padLeft - 4, y);
         }
 
-        // X 轴
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'top';
-        for (let i = 0; i <= 4; i++) {
-            const x = padLeft + (plotW / 4) * i;
-            ctx.fillText(`-${((4 - i) * 7.5).toFixed(0)}s`, x, padTop + plotH + 4);
+        if (!compact) {
+            cx.textAlign = 'center';
+            cx.textBaseline = 'top';
+            for (let i = 0; i <= 4; i++) {
+                const x = padLeft + (plotW / 4) * i;
+                cx.fillText(`-${((4 - i) * 15).toFixed(0)}s`, x, padTop + plotH + 4);
+            }
         }
 
-        // 阈值虚线
         for (let i = 0; i < 4; i++) {
             const th = THRESHOLDS[i];
             if (th > maxVal) continue;
             const y = padTop + plotH - (th / maxVal) * plotH;
-            ctx.save();
-            ctx.setLineDash([4, 4]);
-            ctx.strokeStyle = SERIES_COLORS[i] + '66';
-            ctx.beginPath();
-            ctx.moveTo(padLeft, y);
-            ctx.lineTo(padLeft + plotW, y);
-            ctx.stroke();
-            ctx.restore();
+            cx.save();
+            cx.setLineDash([3, 3]);
+            cx.strokeStyle = SERIES_COLORS[i] + '55';
+            cx.beginPath();
+            cx.moveTo(padLeft, y);
+            cx.lineTo(padLeft + plotW, y);
+            cx.stroke();
+            cx.restore();
         }
 
-        // 曲线
         for (let i = 0; i < 4; i++) {
             const data = history[i];
             if (data.length < 2) continue;
-            ctx.strokeStyle = SERIES_COLORS[i];
-            ctx.lineWidth = 2;
-            ctx.beginPath();
+            cx.strokeStyle = SERIES_COLORS[i];
+            cx.lineWidth = compact ? 1.5 : 2;
+            cx.beginPath();
             for (let j = 0; j < data.length; j++) {
                 const x = padLeft + (plotW * j) / (MAX_POINTS - 1);
                 const y = padTop + plotH - (data[j] / maxVal) * plotH;
-                if (j === 0) ctx.moveTo(x, y);
-                else ctx.lineTo(x, y);
+                if (j === 0) cx.moveTo(x, y);
+                else cx.lineTo(x, y);
             }
-            ctx.stroke();
+            cx.stroke();
         }
 
-        // 边框
-        ctx.strokeStyle = '#2e3a50';
-        ctx.lineWidth = 1;
-        ctx.strokeRect(padLeft, padTop, plotW, plotH);
+        cx.strokeStyle = '#2e3a50';
+        cx.lineWidth = 1;
+        cx.strokeRect(padLeft, padTop, plotW, plotH);
     }
 
+    function drawMiniChart(side) {
+        if (side === 'L') drawChartOn(ctxL, chartL, state.L.history, true);
+        else drawChartOn(ctxR, chartR, state.R.history, true);
+    }
+    function drawBigChart(side) {
+        if (side === 'L') drawChartOn(ctxBigL, chartBigL, state.L.history, false);
+        else drawChartOn(ctxBigR, chartBigR, state.R.history, false);
+    }
+
+    // ============ 足部热力图 ============
+    const FOOT_POINTS_L = [
+        { x: 0.52, y: 0.87 },
+        { x: 0.34, y: 0.62 },
+        { x: 0.62, y: 0.30 },
+        { x: 0.36, y: 0.30 }
+    ];
+    function getFootPoints(side) {
+        if (side === 'L') return FOOT_POINTS_L;
+        return FOOT_POINTS_L.map(p => ({ x: 1 - p.x, y: p.y }));
+    }
+
+    function footPath(c, W, H, mirrored) {
+        const M = mirrored ? (v) => 1 - v : (v) => v;
+        c.beginPath();
+        c.moveTo(W * M(0.50), H * 0.04);
+        c.bezierCurveTo(W * M(0.78), H * 0.02, W * M(0.90), H * 0.12, W * M(0.86), H * 0.30);
+        c.bezierCurveTo(W * M(0.82), H * 0.42, W * M(0.76), H * 0.45, W * M(0.72), H * 0.55);
+        c.bezierCurveTo(W * M(0.70), H * 0.65, W * M(0.76), H * 0.72, W * M(0.78), H * 0.82);
+        c.bezierCurveTo(W * M(0.80), H * 0.94, W * M(0.66), H * 0.99, W * M(0.52), H * 0.97);
+        c.bezierCurveTo(W * M(0.38), H * 0.99, W * M(0.24), H * 0.94, W * M(0.26), H * 0.82);
+        c.bezierCurveTo(W * M(0.28), H * 0.72, W * M(0.34), H * 0.65, W * M(0.32), H * 0.55);
+        c.bezierCurveTo(W * M(0.28), H * 0.42, W * M(0.22), H * 0.30, W * M(0.30), H * 0.16);
+        c.bezierCurveTo(W * M(0.36), H * 0.05, W * M(0.44), H * 0.04, W * M(0.50), H * 0.04);
+        c.closePath();
+    }
+
+    function drawFootMap(side) {
+        const c = side === 'L' ? footCtxL : footCtxR;
+        const cv = side === 'L' ? footCanvasL : footCanvasR;
+        const W = cv.width, H = cv.height;
+        const mirrored = (side === 'R');
+        c.clearRect(0, 0, W, H);
+
+        c.save();
+        footPath(c, W, H, mirrored);
+        c.fillStyle = 'rgba(77, 125, 255, 0.06)';
+        c.fill();
+        c.strokeStyle = side === 'L' ? 'rgba(77, 125, 255, 0.5)' : 'rgba(255, 109, 144, 0.5)';
+        c.lineWidth = 1.5;
+        c.stroke();
+        c.restore();
+
+        c.save();
+        footPath(c, W, H, mirrored);
+        c.clip();
+        c.fillStyle = 'rgba(77, 125, 255, 0.08)';
+        for (let i = 0; i < 30; i++) {
+            for (let j = 0; j < 40; j++) {
+                c.beginPath();
+                c.arc(6 + i * 10, 6 + j * 10, 1.2, 0, Math.PI * 2);
+                c.fill();
+            }
+        }
+        c.restore();
+
+        const footPoints = getFootPoints(side);
+        const w = state[side].weights;
+
+        if (w[0] === null) {
+            footPoints.forEach((pt, i) => {
+                const x = W * pt.x, y = H * pt.y;
+                c.beginPath();
+                c.arc(x, y, 18, 0, Math.PI * 2);
+                c.fillStyle = 'rgba(120, 130, 160, 0.25)';
+                c.fill();
+                c.strokeStyle = 'rgba(120, 130, 160, 0.5)';
+                c.lineWidth = 1.5;
+                c.stroke();
+                c.fillStyle = '#8a99bb';
+                c.font = 'bold 10px "Segoe UI"';
+                c.textAlign = 'center';
+                c.textBaseline = 'middle';
+                c.fillText(`P${i + 1}`, x, y);
+            });
+            return;
+        }
+
+        const intensity = w.map((v, i) => Math.min(1, Math.max(0, v / THRESHOLDS[i])));
+
+        footPoints.forEach((pt, i) => {
+            const x = W * pt.x, y = H * pt.y;
+            const v = intensity[i];
+            const over = w[i] > THRESHOLDS[i];
+            const color = getHeatColor(v);
+
+            const outerR = 32 + v * 16;
+            const grad = c.createRadialGradient(x, y, 2, x, y, outerR);
+            grad.addColorStop(0, color.replace('rgb', 'rgba').replace(')', ',0.8)'));
+            grad.addColorStop(0.5, color.replace('rgb', 'rgba').replace(')', ',0.3)'));
+            grad.addColorStop(1, color.replace('rgb', 'rgba').replace(')', ',0)'));
+            c.beginPath();
+            c.arc(x, y, outerR, 0, Math.PI * 2);
+            c.fillStyle = grad;
+            c.fill();
+
+            const coreR = 13 + v * 8;
+            c.beginPath();
+            c.arc(x, y, coreR, 0, Math.PI * 2);
+            c.fillStyle = color;
+            c.fill();
+
+            if (over) {
+                c.beginPath();
+                c.arc(x, y, coreR + 5, 0, Math.PI * 2);
+                c.strokeStyle = '#ff3b3b';
+                c.lineWidth = 2;
+                c.stroke();
+            }
+
+            c.beginPath();
+            c.arc(x, y, coreR, 0, Math.PI * 2);
+            c.strokeStyle = over ? '#ff3b3b' : 'rgba(255,255,255,0.5)';
+            c.lineWidth = 2;
+            c.stroke();
+
+            c.fillStyle = '#fff';
+            c.font = 'bold 11px "Segoe UI"';
+            c.textAlign = 'center';
+            c.textBaseline = 'middle';
+            c.fillText(w[i].toFixed(1), x, y - 3);
+
+            c.fillStyle = 'rgba(255,255,255,0.75)';
+            c.font = '8px "Segoe UI"';
+            c.fillText(`P${i + 1}`, x, y + 8);
+        });
+    }
+
+    function getHeatColor(v) {
+        if (v < 0.35) return lerpColor([77, 125, 255], [42, 255, 110], v / 0.35);
+        else if (v < 0.7) return lerpColor([42, 255, 110], [255, 176, 32], (v - 0.35) / 0.35);
+        else return lerpColor([255, 176, 32], [255, 59, 59], (v - 0.7) / 0.3);
+    }
+    function lerpColor(a, b, k) {
+        const r = Math.round(a[0] + (b[0] - a[0]) * k);
+        const g = Math.round(a[1] + (b[1] - a[1]) * k);
+        const bl = Math.round(a[2] + (b[2] - a[2]) * k);
+        return `rgb(${r},${g},${bl})`;
+    }
+
+    // ============ 初始化 ============
     window.addEventListener('load', () => {
-        resizeCanvas();
-        drawChart();
+        applyLang();
+        refreshTargetUI();
+
+        try {
+            ['L', 'R'].forEach(s => {
+                const raw = readStore(KEY_RAW(s));
+                if (raw.length > 0) {
+                    const cutoff = Date.now() - RAW_KEEP_MS;
+                    const filtered = raw.filter(r => r.t >= cutoff);
+                    writeStore(KEY_RAW(s), filtered);
+                    maybeAggregateMinute(s, filtered);
+                }
+            });
+        } catch (e) { console.error(e); }
+
+        setTimeout(() => {
+            resizeMiniCharts();
+            resizeBigCharts();
+            drawFootMap('L');
+            drawFootMap('R');
+        }, 100);
+        refreshDataPage();
     });
 
     window.addEventListener('beforeunload', () => {
         if (port) { try { port.close(); } catch (_) {} }
     });
+
 })();
 </script>
 </body>
